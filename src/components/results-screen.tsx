@@ -5,66 +5,216 @@ import { useRouter } from "next/navigation";
 import AppShell from "@/components/app-shell";
 import { useRelationship } from "@/components/relationship-context";
 import { questionnaireAreas } from "@/lib/relationship-data";
+import type { AreaResult, OutcomeBucket } from "@/lib/relationship-engine";
 
 const resultsCopy = {
   cz: {
     eyebrow: "Výsledky",
-    title: "Přehled vztahu v první verzi MVP",
+    title: "Přehled vztahu",
     description:
-      "Výstup je orientační. Neříká, co musíš udělat, ale ukazuje, kde vztah stojí pevněji a které oblasti nejvíc volají po pravdivé pozornosti.",
+      "Tohle není verdikt. Je to klidný souhrn toho, co vztah teď drží, co ho oslabuje a kde je dobré dívat se na realitu bez přikrášlení.",
     gateTitle: "Nejdřív vyplň dotazník",
     gateText: "Výsledky lze spočítat až po zodpovězení všech relevantních otázek.",
     gateAction: "Přejít na dotazník",
     total: "Celkové skóre",
-    average: "Vážený průměr",
-    interpretation: "Jednoduchý výklad",
+    average: "Průměr odpovědí",
     weakest: "Nejslabší oblasti",
     areaBreakdown: "Skóre po oblastech",
+    outcome: "Aktuální obrázek",
     restart: "Začít znovu",
     revise: "Upravit odpovědi",
-    interpretations: {
-      strong:
-        "Ve vztahu je vidět víc nosných pilířů než trhlin. Výsledek spíš ukazuje na vztah, který stojí za vědomou péči a další investici.",
-      promising:
-        "Vztah má použitelné základy, ale několik oblastí potřebuje cílenou opravu. Zachování vztahu může dávat smysl, pokud se nejslabší místa začnou řešit konkrétně.",
-      mixed:
-        "Obraz je smíšený. Něco vztah drží, ale několik zón už může stát na dluhu, únavě nebo nepojmenovaném napětí.",
-      fragile:
-        "Výsledek ukazuje výrazné oslabení více oblastí najednou. Pokud má mít vztah šanci, bude potřebovat velmi pravdivé pojmenování reality a bezpečný další krok.",
+    holdsTitle: "Co vztah ještě drží",
+    weakensTitle: "Co vztah oslabuje",
+    warningTitle: "Co je varovné",
+    nextTitle: "Co z toho plyne teď",
+    noWarning:
+      "Teď tu není jedno ostré červené světlo. Varovné by bylo spíš to, kdyby se slabší místa dál přehlížela.",
+    areasLeadStrong: "Nejvíc se teď dá opřít o",
+    areasLeadWeak: "Nejvíc to teď padá v oblastech",
+    areasLeadWarn: "Nejopatrněji je dobré dívat se na",
+    bucketLabels: {
+      "relationship worth repairing": "Vztah stojí za opravu",
+      "limited test of change needed": "Je potřeba omezený, ale skutečný test změny",
+      "likely long-term unsustainable without major change":
+        "Bez větší změny je tenhle vztah nejspíš dlouhodobě neudržitelný",
+    },
+    bucketText: {
+      "relationship worth repairing": {
+        holds:
+          "Ve vztahu je pořád dost živého materiálu, o který se dá opřít. To důležité ještě není pryč.",
+        weakens:
+          "Slabší místa jsou skutečná, ale zatím nepůsobí jako úplný rozpad toho, co vztah nese.",
+        warning:
+          "Pokud se slabé oblasti nechají být, únava se může začít hromadit rychleji, než teď vypadá.",
+        next:
+          "Dává smysl zkusit vědomou opravu. Ne všechno najednou. Spíš pár jasných změn v běžném chování a sledovat, jestli se opravdu dějí.",
+      },
+      "limited test of change needed": {
+        holds:
+          "Ve vztahu něco drží, ale samo o sobě to nestačí. Dobré části tu pořád jsou, jen už nenesou všechno.",
+        weakens:
+          "Slabší oblasti už zasahují do běžného fungování a nejde je brát jako drobnost nebo přechodnou nepohodu.",
+        warning:
+          "Riziko je v tom, že se bude dlouho mluvit o změně, ale v každodenním životě se nic moc nepohne.",
+        next:
+          "Teď dává smysl krátký a konkrétní test změny. Ujasnit si co přesně se má změnit, dokdy a podle čeho poznáš, že se to opravdu děje.",
+      },
+      "likely long-term unsustainable without major change": {
+        holds:
+          "Něco dobrého tu může pořád být, ale samo to teď zřejmě nestačí na pocit bezpečí a dlouhodobé opory.",
+        weakens:
+          "Slabá místa už nejsou jen okrajová. Zasahují do základů vztahu a berou mu sílu.",
+        warning:
+          "Varovné je hlavně to, že bez větší změny se stejný tlak bude nejspíš vracet a dál vyčerpávat oba.",
+        next:
+          "Teď je důležité dívat se víc na realitu než na slib, že se to jednou zlomí. Pokud má vztah ještě dostat šanci, bude potřebovat větší a viditelnou změnu, ne jen další naději.",
+      },
     },
   },
   en: {
     eyebrow: "Results",
-    title: "A first-pass view of the relationship",
+    title: "Relationship summary",
     description:
-      "This output is directional, not absolute. It does not tell you what you must do, but it shows where the relationship stands on firmer ground and which areas need the most honest attention.",
+      "This is not a verdict. It is a calm summary of what still holds the relationship, what weakens it, and where reality needs a clearer look.",
     gateTitle: "Finish the questionnaire first",
     gateText: "Results can only be calculated after all relevant questions have been answered.",
     gateAction: "Go to questionnaire",
     total: "Total score",
-    average: "Weighted average",
-    interpretation: "Simple interpretation",
+    average: "Average response",
     weakest: "Weakest areas",
     areaBreakdown: "Area breakdown",
+    outcome: "Current picture",
     restart: "Start over",
     revise: "Revise answers",
-    interpretations: {
-      strong:
-        "More core pillars than fractures are visible here. The result leans toward a relationship that is still worth conscious care and further investment.",
-      promising:
-        "The relationship has workable foundations, but several areas need focused repair. Preserving it may make sense if the weakest zones are addressed concretely.",
-      mixed:
-        "The picture is mixed. Some parts still hold, but several zones may already be running on debt, fatigue, or unnamed tension.",
-      fragile:
-        "The result points to significant weakening across multiple areas at once. If the relationship is to have a chance, it will need an especially truthful view of reality and a safe next step.",
+    holdsTitle: "What still holds the relationship",
+    weakensTitle: "What weakens the relationship",
+    warningTitle: "What is warning",
+    nextTitle: "What follows from this now",
+    noWarning:
+      "There is no single sharp red flag here right now. The risk would be ignoring the weaker areas for too long.",
+    areasLeadStrong: "The clearest support right now is in",
+    areasLeadWeak: "The relationship is most strained in",
+    areasLeadWarn: "The clearest warning sign right now is around",
+    bucketLabels: {
+      "relationship worth repairing": "Relationship worth repairing",
+      "limited test of change needed": "Limited test of change needed",
+      "likely long-term unsustainable without major change":
+        "Likely long-term unsustainable without major change",
+    },
+    bucketText: {
+      "relationship worth repairing": {
+        holds:
+          "There is still enough living material in this relationship to build on. What matters most is not gone.",
+        weakens:
+          "The weak spots are real, but they do not yet read like a full collapse of the core structure.",
+        warning:
+          "If the weak areas are left alone, wear and resentment can build faster than it seems right now.",
+        next:
+          "A deliberate repair attempt makes sense here. Not everything at once. A few clear changes in ordinary behavior matter more than big promises.",
+      },
+      "limited test of change needed": {
+        holds:
+          "Something still holds this relationship together, but it is not carrying enough on its own anymore.",
+        weakens:
+          "The weaker areas are already affecting daily life and cannot really be treated as a small side issue.",
+        warning:
+          "The risk is spending a long time talking about change while everyday reality barely moves.",
+        next:
+          "What makes sense now is a short, concrete test of change. Be specific about what needs to change, by when, and how you will know it is real.",
+      },
+      "likely long-term unsustainable without major change": {
+        holds:
+          "There may still be something good here, but it likely is not enough right now to create safety and steady support.",
+        weakens:
+          "The weak areas are no longer peripheral. They are reaching into the core of the relationship.",
+        warning:
+          "The main warning sign is that without major change, the same pressure will probably keep returning and draining both of you further.",
+        next:
+          "It is important now to look more at reality than at the promise that things will somehow turn around later. If the relationship is to have a chance, it will need visible and meaningful change, not only hope.",
+      },
     },
   },
 } as const;
+
+function getAreaLabel(areaId: AreaResult["areaId"], language: "cz" | "en") {
+  const definition = questionnaireAreas.find((item) => item.id === areaId);
+
+  if (!definition) {
+    return "";
+  }
+
+  return language === "cz" ? definition.titleCZ.toLowerCase() : definition.titleEN.toLowerCase();
+}
+
+function joinLabels(labels: string[], language: "cz" | "en") {
+  if (labels.length === 0) {
+    return "";
+  }
+
+  if (labels.length === 1) {
+    return labels[0];
+  }
+
+  if (labels.length === 2) {
+    return `${labels[0]} ${language === "cz" ? "a" : "and"} ${labels[1]}`;
+  }
+
+  return `${labels.slice(0, -1).join(", ")} ${language === "cz" ? "a" : "and"} ${labels.at(-1)}`;
+}
+
+function getAreaSentence(
+  areas: AreaResult[],
+  language: "cz" | "en",
+  leadCZ: string,
+  leadEN: string,
+) {
+  if (areas.length === 0) {
+    return "";
+  }
+
+  const labels = joinLabels(
+    areas.map((area) => getAreaLabel(area.areaId, language)).filter(Boolean),
+    language,
+  );
+
+  if (!labels) {
+    return "";
+  }
+
+  return language === "cz" ? `${leadCZ} ${labels}.` : `${leadEN} ${labels}.`;
+}
+
+function getBucketText(language: "cz" | "en", outcomeBucket: OutcomeBucket) {
+  return resultsCopy[language].bucketText[outcomeBucket];
+}
+
+function getBucketLabel(language: "cz" | "en", outcomeBucket: OutcomeBucket) {
+  return resultsCopy[language].bucketLabels[outcomeBucket];
+}
 
 export default function ResultsScreen() {
   const router = useRouter();
   const { language, questionnaireComplete, restartAll, results } = useRelationship();
   const copy = resultsCopy[language];
+  const bucketText = getBucketText(language, results.outcomeBucket);
+  const supportAreas = getAreaSentence(
+    results.strongestAreas.slice(0, 2),
+    language,
+    copy.areasLeadStrong,
+    copy.areasLeadStrong,
+  );
+  const weakAreas = getAreaSentence(
+    results.weakestAreas.slice(0, 2),
+    language,
+    copy.areasLeadWeak,
+    copy.areasLeadWeak,
+  );
+  const warningAreas = getAreaSentence(
+    results.warningAreas.slice(0, 2),
+    language,
+    copy.areasLeadWarn,
+    copy.areasLeadWarn,
+  );
 
   if (!questionnaireComplete) {
     return (
@@ -103,6 +253,14 @@ export default function ResultsScreen() {
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
               {copy.average}: {results.totalAverage}/5
+            </p>
+            <p className="mt-4 rounded-[18px] border border-[var(--stroke)] bg-white px-4 py-3 text-sm leading-6 text-[var(--foreground)]">
+              <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+                {copy.outcome}
+              </span>
+              <span className="mt-2 block font-medium">
+                {getBucketLabel(language, results.outcomeBucket)}
+              </span>
             </p>
           </div>
           <div>
@@ -152,10 +310,13 @@ export default function ResultsScreen() {
             <div className="space-y-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
-                  {copy.interpretation}
+                  {copy.outcome}
                 </p>
+                <h2 className="mt-3 text-2xl font-semibold text-[var(--foreground)] sm:text-3xl">
+                  {getBucketLabel(language, results.outcomeBucket)}
+                </h2>
                 <p className="mt-3 text-lg leading-8 text-[var(--foreground)]">
-                  {copy.interpretations[results.interpretationKey]}
+                  {bucketText.next}
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
@@ -178,6 +339,53 @@ export default function ResultsScreen() {
                 </button>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-2">
+          <div className="rounded-[28px] border border-[var(--stroke)] bg-white/78 p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+              {copy.holdsTitle}
+            </p>
+            <p className="mt-4 text-base leading-7 text-[var(--foreground)]">
+              {bucketText.holds}
+            </p>
+            {supportAreas ? (
+              <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{supportAreas}</p>
+            ) : null}
+          </div>
+
+          <div className="rounded-[28px] border border-[var(--stroke)] bg-white/78 p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+              {copy.weakensTitle}
+            </p>
+            <p className="mt-4 text-base leading-7 text-[var(--foreground)]">
+              {bucketText.weakens}
+            </p>
+            {weakAreas ? (
+              <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{weakAreas}</p>
+            ) : null}
+          </div>
+
+          <div className="rounded-[28px] border border-[var(--stroke)] bg-white/78 p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+              {copy.warningTitle}
+            </p>
+            <p className="mt-4 text-base leading-7 text-[var(--foreground)]">
+              {results.warningAreas.length > 0 ? bucketText.warning : copy.noWarning}
+            </p>
+            {warningAreas ? (
+              <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{warningAreas}</p>
+            ) : null}
+          </div>
+
+          <div className="rounded-[28px] border border-[var(--stroke)] bg-white/78 p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
+              {copy.nextTitle}
+            </p>
+            <p className="mt-4 text-base leading-7 text-[var(--foreground)]">
+              {bucketText.next}
+            </p>
           </div>
         </section>
 

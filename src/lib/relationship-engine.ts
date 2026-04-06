@@ -12,6 +12,11 @@ import {
 
 export type QuestionnaireAnswers = Partial<Record<string, ScaleValue>>;
 
+export type OutcomeBucket =
+  | "relationship worth repairing"
+  | "limited test of change needed"
+  | "likely long-term unsustainable without major change";
+
 export type AreaResult = {
   areaId: QuestionnaireQuestion["area"];
   score: number;
@@ -26,8 +31,10 @@ export type RelationshipResults = {
   totalAverage: number;
   answeredQuestions: number;
   areaResults: AreaResult[];
+  strongestAreas: AreaResult[];
   weakestAreas: AreaResult[];
-  interpretationKey: "strong" | "promising" | "mixed" | "fragile";
+  warningAreas: AreaResult[];
+  outcomeBucket: OutcomeBucket;
 };
 
 export function evaluateCondition(
@@ -156,16 +163,45 @@ export function calculateResults(
   );
   const totalScore = maxWeighted === 0 ? 0 : Math.round((obtainedWeighted / maxWeighted) * 100);
   const totalAverage = totalWeight === 0 ? 0 : Number((obtainedWeighted / totalWeight).toFixed(1));
+  const strongestAreas = [...areaResults]
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 3);
   const weakestAreas = [...areaResults].sort((left, right) => left.score - right.score).slice(0, 3);
+  const criticalAreaIds = new Set<AreaResult["areaId"]>([
+    "foundation",
+    "safetyRespect",
+    "communication",
+    "conflictRepair",
+    "trustStability",
+  ]);
+  const warningAreas = [...areaResults]
+    .filter(
+      (area) => area.score < 45 || (criticalAreaIds.has(area.areaId) && area.score < 55),
+    )
+    .sort((left, right) => left.score - right.score);
+  const criticalLowCount = areaResults.filter(
+    (area) => criticalAreaIds.has(area.areaId) && area.score < 50,
+  ).length;
+  const severeLowCount = areaResults.filter((area) => area.score < 40).length;
+  const safetyScore = areaResults.find((area) => area.areaId === "safetyRespect")?.score;
+  const trustScore = areaResults.find((area) => area.areaId === "trustStability")?.score;
 
-  let interpretationKey: RelationshipResults["interpretationKey"] = "fragile";
+  let outcomeBucket: OutcomeBucket = "limited test of change needed";
 
-  if (totalScore >= 80) {
-    interpretationKey = "strong";
-  } else if (totalScore >= 67) {
-    interpretationKey = "promising";
-  } else if (totalScore >= 52) {
-    interpretationKey = "mixed";
+  if (
+    totalScore < 48 ||
+    severeLowCount >= 2 ||
+    criticalLowCount >= 3 ||
+    (safetyScore !== undefined && safetyScore < 35) ||
+    (trustScore !== undefined && trustScore < 35)
+  ) {
+    outcomeBucket = "likely long-term unsustainable without major change";
+  } else if (
+    totalScore >= 68 &&
+    criticalLowCount === 0 &&
+    (weakestAreas[0]?.score ?? 100) >= 45
+  ) {
+    outcomeBucket = "relationship worth repairing";
   }
 
   return {
@@ -173,7 +209,9 @@ export function calculateResults(
     totalAverage,
     answeredQuestions: answeredQuestions.length,
     areaResults,
+    strongestAreas,
     weakestAreas,
-    interpretationKey,
+    warningAreas,
+    outcomeBucket,
   };
 }
