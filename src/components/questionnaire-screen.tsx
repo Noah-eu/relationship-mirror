@@ -19,9 +19,16 @@ const questionnaireCopy = {
     progress: "Vyplněno",
     results: "Zobrazit výsledky",
     modeLabel: "Režim",
+    adaptiveTitle: "Aktivní adaptace",
     hiddenChildren: "Sekce Děti a rodina byla skryta.",
     hiddenHousehold: "Sekce Domácnost byla skryta.",
     limitedFinances: "Finance jsou omezené na obecné otázky.",
+    shortDuration: "Krátký vztah: zvýrazněné jsou otázky na tempo, ranou důvěru a přiměřenost očekávání.",
+    establishedDuration: "Delší vztah: přidané jsou otázky na opakující se vzorce, historii a nosnost větších závazků.",
+    longDuration: "Dlouhodobý vztah: dotazník víc sleduje únavu, cynismus a dlouhodobou opravitelnost.",
+    familyOurs: "Společné děti: zobrazené jsou otázky na rodičovské sladění a společnou linii.",
+    familyStep: "Moje nebo partnerovy děti: zobrazené jsou otázky na role, loajalitu a jasnost očekávání.",
+    familyBlended: "Patchwork rodina: zobrazené jsou otázky na přechody mezi domácnostmi a koordinaci více vazeb.",
   },
   en: {
     eyebrow: "Questionnaire",
@@ -35,9 +42,16 @@ const questionnaireCopy = {
     progress: "Completed",
     results: "View results",
     modeLabel: "Mode",
+    adaptiveTitle: "Active adaptation",
     hiddenChildren: "Children and family has been hidden.",
     hiddenHousehold: "Household has been hidden.",
     limitedFinances: "Finances are limited to general prompts.",
+    shortDuration: "Short relationship: prompts now emphasize pacing, early trust, and the realism of expectations.",
+    establishedDuration: "Longer relationship: prompts have been added for recurring patterns, history, and the weight of bigger commitments.",
+    longDuration: "Long-term relationship: the questionnaire leans more into fatigue, cynicism, and long-range repair capacity.",
+    familyOurs: "Shared children: prompts focus on parenting alignment and a consistent shared line.",
+    familyStep: "My children or their children: prompts focus on roles, loyalty tension, and clearer expectations.",
+    familyBlended: "Blended family: prompts focus on transitions between households and coordination across multiple bonds.",
   },
 } as const;
 
@@ -61,7 +75,7 @@ export default function QuestionnaireScreen() {
   const answeredCount = visibleQuestions.filter(
     (question) => answers[question.id] !== undefined,
   ).length;
-  const notes = [];
+  const notes: string[] = [];
 
   if (onboarding.hasChildren === false) {
     notes.push(copy.hiddenChildren);
@@ -73,6 +87,30 @@ export default function QuestionnaireScreen() {
 
   if (onboarding.sharedFinances === false) {
     notes.push(copy.limitedFinances);
+  }
+
+  if (onboarding.duration === "lt1") {
+    notes.push(copy.shortDuration);
+  }
+
+  if (onboarding.duration === "1to3" || onboarding.duration === "3to7") {
+    notes.push(copy.establishedDuration);
+  }
+
+  if (onboarding.duration === "7plus") {
+    notes.push(copy.longDuration);
+  }
+
+  if (onboarding.childrenType === "ours") {
+    notes.push(copy.familyOurs);
+  }
+
+  if (onboarding.childrenType === "mine" || onboarding.childrenType === "theirs") {
+    notes.push(copy.familyStep);
+  }
+
+  if (onboarding.childrenType === "blended") {
+    notes.push(copy.familyBlended);
   }
 
   if (!onboardingComplete) {
@@ -115,7 +153,7 @@ export default function QuestionnaireScreen() {
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
-              Adaptive notes
+              {copy.adaptiveTitle}
             </p>
             <div className="mt-4 space-y-3">
               {notes.map((item) => (

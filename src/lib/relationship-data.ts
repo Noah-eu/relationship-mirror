@@ -318,6 +318,15 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     ["deep"],
   ),
   question(
+    "foundation-7",
+    "foundation",
+    "Tempo vztahu působí zdravě a ne jako tlak, který je potřeba rychle dohnat.",
+    "The pace of the relationship feels healthy rather than rushed or pressured.",
+    2,
+    [{ field: "duration", operator: "equals", value: "lt1" }],
+    ["deep"],
+  ),
+  question(
     "safety-1",
     "safetyRespect",
     "Cítím se psychicky bezpečně, když vyjádřím nepohodlí nebo nesouhlas.",
@@ -406,6 +415,15 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     ["deep"],
   ),
   question(
+    "communication-7",
+    "communication",
+    "I po delší době spolu umíme mluvit o citlivých věcech bez cynismu nebo úplného vypnutí.",
+    "Even after a long time together, we can discuss sensitive things without cynicism or shutting down.",
+    2,
+    [{ field: "duration", operator: "in", value: ["3to7", "7plus"] }],
+    ["deep"],
+  ),
+  question(
     "conflict-1",
     "conflictRepair",
     "Hádky se nakonec většinou posouvají k nějakému řešení.",
@@ -425,6 +443,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     "Staré spory se nevracejí pořád dokola bez jakéhokoli posunu.",
     "Old fights do not keep reopening without any progress.",
     2,
+    [{ field: "duration", operator: "in", value: ["1to3", "3to7", "7plus"] }],
   ),
   question(
     "conflict-4",
@@ -476,6 +495,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     "Větší závazky v tomhle vztahu působí spolehlivě.",
     "Major commitments in this relationship feel reliable.",
     2,
+    [{ field: "duration", operator: "in", value: ["1to3", "3to7", "7plus"] }],
   ),
   question(
     "trust-5",
@@ -491,6 +511,15 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     "My nervous system experiences this relationship as mostly predictable.",
     3,
     [],
+    ["deep"],
+  ),
+  question(
+    "trust-7",
+    "trustStability",
+    "To, jak vztah působí navenek, zatím odpovídá i tomu, jaký je v realitě.",
+    "How the relationship appears on the surface still matches the reality of it.",
+    2,
+    [{ field: "duration", operator: "equals", value: "lt1" }],
     ["deep"],
   ),
   question(
@@ -730,6 +759,42 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     ["deep"],
   ),
   question(
+    "children-7",
+    "childrenFamily",
+    "U našich společných dětí jsme dost sladění v tom, jak držet hranice, rytmus a rodičovskou linku.",
+    "With our shared children, we are aligned enough on boundaries, rhythm, and parenting direction.",
+    3,
+    [
+      { field: "hasChildren", operator: "equals", value: true },
+      { field: "childrenType", operator: "equals", value: "ours" },
+    ],
+    ["deep"],
+  ),
+  question(
+    "children-8",
+    "childrenFamily",
+    "Když jsou ve vztahu moje nebo partnerovy děti, role a očekávání mezi námi působí dost jasně.",
+    "When the relationship includes my children or my partner's children, roles and expectations between us feel clear enough.",
+    3,
+    [
+      { field: "hasChildren", operator: "equals", value: true },
+      { field: "childrenType", operator: "in", value: ["mine", "theirs"] },
+    ],
+    ["deep"],
+  ),
+  question(
+    "children-9",
+    "childrenFamily",
+    "V patchwork nebo blended uspořádání umíme zvládat přechody mezi domácnostmi bez rozpadnutí spolupráce.",
+    "In a blended family setup, we can handle transitions between households without the relationship losing cooperation.",
+    3,
+    [
+      { field: "hasChildren", operator: "equals", value: true },
+      { field: "childrenType", operator: "equals", value: "blended" },
+    ],
+    ["deep"],
+  ),
+  question(
     "decision-1",
     "decisionTruth",
     "Když si představím, že zůstanu, působí to spíš pravdivě než jako rozhodnutí ze strachu.",
@@ -742,6 +807,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     "Nespoléhám jen na investovaný čas nebo minulost jako důvod zůstávat.",
     "I am not relying only on time invested or history as the reason to stay.",
     3,
+    [{ field: "duration", operator: "in", value: ["1to3", "3to7", "7plus"] }],
   ),
   question(
     "decision-3",
