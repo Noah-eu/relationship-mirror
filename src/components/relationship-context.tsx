@@ -22,6 +22,10 @@ import {
   getVisibleQuestionnaireQuestions,
   type QuestionnaireAnswers,
 } from "@/lib/relationship-engine";
+import {
+  filterAnswersToVisibleQuestionIds,
+  sanitizeConditionalOnboardingFields,
+} from "@/lib/question-flow";
 
 type RelationshipContextValue = {
   language: Language;
@@ -105,36 +109,34 @@ export function RelationshipProvider({ children }: { children: ReactNode }) {
   const results = calculateResults(visibleQuestions, answers);
 
   useEffect(() => {
-    const visibleQuestionIds = new Set(visibleQuestions.map((question) => question.id));
+    const visibleQuestionIds = visibleQuestions.map((question) => question.id);
 
     setAnswers((currentAnswers) => {
-      const nextEntries = Object.entries(currentAnswers).filter(([questionId]) =>
-        visibleQuestionIds.has(questionId),
+      const nextAnswers = filterAnswersToVisibleQuestionIds(
+        currentAnswers,
+        visibleQuestionIds,
       );
 
-      if (nextEntries.length === Object.keys(currentAnswers).length) {
+      if (Object.keys(nextAnswers).length === Object.keys(currentAnswers).length) {
         return currentAnswers;
       }
 
-      return Object.fromEntries(nextEntries);
+      return nextAnswers;
     });
   }, [visibleQuestions]);
 
   useEffect(() => {
-    const visibleOnboardingIds = new Set(
-      visibleOnboardingQuestions.map((question) => question.id),
+    const visibleOnboardingIds = visibleOnboardingQuestions.map(
+      (question) => question.id,
     );
 
     setOnboarding((currentOnboarding) => {
-      let hasChanged = false;
-      const nextOnboarding = { ...currentOnboarding };
+      const nextOnboarding = sanitizeConditionalOnboardingFields(
+        currentOnboarding,
+        visibleOnboardingIds,
+      );
 
-      if (!visibleOnboardingIds.has("childrenType") && nextOnboarding.childrenType !== null) {
-        nextOnboarding.childrenType = null;
-        hasChanged = true;
-      }
-
-      return hasChanged ? nextOnboarding : currentOnboarding;
+      return nextOnboarding === currentOnboarding ? currentOnboarding : nextOnboarding;
     });
   }, [visibleOnboardingQuestions]);
 

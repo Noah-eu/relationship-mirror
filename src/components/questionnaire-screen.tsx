@@ -1,10 +1,24 @@
 'use client';
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/app-shell";
+import QuestionStepCard from "@/components/question-step-card";
 import { useRelationship } from "@/components/relationship-context";
-import { NOT_APPLICABLE, notApplicableLabels, scaleLabels } from "@/lib/relationship-data";
+import {
+    NOT_APPLICABLE,
+    notApplicableLabels,
+    scaleLabels,
+    type QuestionAnswerValue,
+} from "@/lib/relationship-data";
+import {
+    getAnsweredQuestionIds,
+    getCurrentQuestionId,
+    getFlowProgress,
+    getNextQuestionId,
+    getPreviousQuestionId,
+} from "@/lib/question-flow";
 
 const questionnaireCopy = {
     cz: {
@@ -16,6 +30,9 @@ const questionnaireCopy = {
         gateText:
             "Aby otázky dávaly smysl, potřebujeme nejdřív pár základních informací o vztahu.",
         gateAction: "Přejít na úvodní otázky",
+        questionLabel: "Otázka",
+        back: "Zpět",
+        next: "Další",
         progress: "Vyplněno",
         results: "Zobrazit shrnutí",
         modeLabel: "Verze",
@@ -43,6 +60,9 @@ const questionnaireCopy = {
         gateText:
             "To make these questions meaningful, we first need a little context about the relationship.",
         gateAction: "Go to the basics",
+        questionLabel: "Question",
+        back: "Back",
+        next: "Next",
         progress: "Completed",
         results: "View summary",
         modeLabel: "Version",
@@ -70,23 +90,57 @@ export default function QuestionnaireScreen() {
         language,
         onboarding,
         onboardingComplete,
-        questionnaireComplete,
         setQuestionAnswer,
         visibleAreas,
         visibleQuestions,
     } = useRelationship();
     const copy = questionnaireCopy[language];
-    const questionsByArea = visibleAreas.map((area) => ({
-        area,
-        questions: visibleQuestions.filter((question) => question.area === area.id),
-    }));
     const hasNotApplicableQuestions = visibleQuestions.some((question) => question.allowsNotApplicable);
+    const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
+    const questionIds = useMemo(
+        () => visibleQuestions.map((question) => question.id),
+        [visibleQuestions],
+    );
+    const answeredQuestionIds = useMemo(
+        () => getAnsweredQuestionIds(questionIds, answers),
+        [questionIds, answers],
+    );
     const answeredCount = visibleQuestions.filter(
         (question) => answers[question.id] !== undefined,
     ).length;
     const notes: string[] = [];
 
     const modeLabel = onboarding.mode === "deep" ? copy.detailedMode : copy.shorterMode;
+    const resolvedQuestionId = getCurrentQuestionId(
+        questionIds,
+        currentQuestionId,
+        answeredQuestionIds,
+    );
+    const currentQuestion = visibleQuestions.find(
+        (question) => question.id === resolvedQuestionId,
+    );
+    const currentArea = visibleAreas.find(
+        (area) => area.id === currentQuestion?.area,
+    );
+    const progress = getFlowProgress(
+        questionIds,
+        resolvedQuestionId,
+        answeredQuestionIds,
+    );
+    const previousQuestionId = getPreviousQuestionId(
+        questionIds,
+        resolvedQuestionId,
+        answeredQuestionIds,
+    );
+    const nextQuestionId = getNextQuestionId(
+        questionIds,
+        resolvedQuestionId,
+        answeredQuestionIds,
+    );
+
+    useEffect(() => {
+        setCurrentQuestionId(resolvedQuestionId);
+    }, [resolvedQuestionId]);
 
     if (onboarding.hasChildren === false) {
         notes.push(copy.hiddenChildren);
@@ -146,6 +200,40 @@ export default function QuestionnaireScreen() {
                 </div>
             </AppShell>
         );
+    }
+
+    function handleSelect(value: QuestionAnswerValue) {
+        if (!currentQuestion) {
+            return;
+        }
+
+        setQuestionAnswer(currentQuestion.id, value);
+
+        if (nextQuestionId) {
+            setCurrentQuestionId(nextQuestionId);
+            return;
+        }
+
+        router.push("/results");
+    }
+
+    function handleBack() {
+        if (previousQuestionId) {
+            setCurrentQuestionId(previousQuestionId);
+        }
+    }
+
+    function handleNext() {
+        if (!currentQuestion || answers[currentQuestion.id] === undefined) {
+            return;
+        }
+
+        if (nextQuestionId) {
+            setCurrentQuestionId(nextQuestionId);
+            return;
+        }
+
+        router.push("/results");
     }
 
     return (
@@ -211,101 +299,56 @@ export default function QuestionnaireScreen() {
                     </div>
                 </div>
 
-                {questionsByArea.map(({ area, questions }) => (
-                    <section
-                        key={area.id}
-                        className="rounded-[30px] border border-[var(--stroke)] bg-white/78 p-5 sm:p-6"
-                    >
-                        <div className="mb-6 max-w-3xl space-y-2">
-                            <h2 className="text-2xl font-semibold text-[var(--foreground)]">
-                                {language === "cz" ? area.titleCZ : area.titleEN}
-                            </h2>
+                {currentQuestion ? (
+                    <QuestionStepCard
+                        progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
+                        progressCurrent={progress.currentNumber}
+                        progressTotal={progress.totalQuestions}
+                        questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
+                        questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
+                        clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
+                        sectionLabel={currentArea ? (language === "cz" ? currentArea.titleCZ : currentArea.titleEN) : undefined}
+                        sectionDescription={
+                            currentArea
+                                ? language === "cz"
+                                    ? currentArea.descriptionCZ
+                                    : currentArea.descriptionEN
+                                : undefined
+                        }
+                        options={[
+                            ...scaleLabels[language].map((item) => ({
+                                key: `${currentQuestion.id}-${item.value}`,
+                                label: `${item.value}`,
+                                hint: item.label,
+                                selected: answers[currentQuestion.id] === item.value,
+                                onSelect: () => handleSelect(item.value),
+                            })),
+                            ...(currentQuestion.allowsNotApplicable
+                                ? [
+                                    {
+                                        key: `${currentQuestion.id}-${NOT_APPLICABLE}`,
+                                        label: notApplicableLabels[language],
+                                        hint: copy.notApplicableNote,
+                                        selected: answers[currentQuestion.id] === NOT_APPLICABLE,
+                                        onSelect: () => handleSelect(NOT_APPLICABLE),
+                                    },
+                                ]
+                                : []),
+                        ]}
+                        optionsClassName={`grid gap-3 ${currentQuestion.allowsNotApplicable ? "sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-3 xl:grid-cols-5"}`}
+                        backLabel={copy.back}
+                        nextLabel={nextQuestionId ? copy.next : copy.results}
+                        onBack={handleBack}
+                        onNext={handleNext}
+                        canGoBack={Boolean(previousQuestionId)}
+                        canGoNext={answers[currentQuestion.id] !== undefined}
+                        footer={
                             <p className="text-sm leading-6 text-[var(--muted-foreground)]">
-                                {language === "cz" ? area.descriptionCZ : area.descriptionEN}
+                                {copy.progress} {answeredCount}/{visibleQuestions.length}
                             </p>
-                        </div>
-
-                        <div className="space-y-4">
-                            {questions.map((question, index) => {
-                                const selectedValue = answers[question.id];
-
-                                return (
-                                    <div
-                                        key={question.id}
-                                        className="rounded-[24px] border border-[var(--stroke)] bg-[var(--panel-soft)] p-4 sm:p-5"
-                                    >
-                                        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                            <div className="max-w-3xl">
-                                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                                                    {index + 1}
-                                                </p>
-                                                <p className="mt-2 text-base leading-7 text-[var(--foreground)] sm:text-lg">
-                                                    {language === "cz" ? question.textCZ : question.textEN}
-                                                </p>
-                                                <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                                                    {language === "cz" ? question.clarifierCZ : question.clarifierEN}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className={`grid gap-2 ${question.allowsNotApplicable ? "sm:grid-cols-6" : "sm:grid-cols-5"}`}>
-                                            {scaleLabels[language].map((item) => {
-                                                const isSelected = selectedValue === item.value;
-
-                                                return (
-                                                    <button
-                                                        key={`${question.id}-${item.value}`}
-                                                        type="button"
-                                                        onClick={() => setQuestionAnswer(question.id, item.value)}
-                                                        className={`rounded-[20px] border px-4 py-3 text-center transition ${isSelected
-                                                            ? "border-[var(--accent-strong)] bg-white shadow-[0_14px_34px_rgba(76,96,88,0.12)]"
-                                                            : "border-[var(--stroke)] bg-white/70 hover:bg-white"
-                                                            }`}
-                                                    >
-                                                        <p className="text-lg font-semibold text-[var(--foreground)]">
-                                                            {item.value}
-                                                        </p>
-                                                        <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
-                                                            {item.label}
-                                                        </p>
-                                                    </button>
-                                                );
-                                            })}
-                                            {question.allowsNotApplicable ? (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setQuestionAnswer(question.id, NOT_APPLICABLE)}
-                                                    className={`rounded-[20px] border px-4 py-3 text-center transition ${selectedValue === NOT_APPLICABLE
-                                                        ? "border-[var(--accent-strong)] bg-white shadow-[0_14px_34px_rgba(76,96,88,0.12)]"
-                                                        : "border-[var(--stroke)] bg-white/70 hover:bg-white"
-                                                        }`}
-                                                >
-                                                    <p className="text-sm font-semibold text-[var(--foreground)]">
-                                                        {notApplicableLabels[language]}
-                                                    </p>
-                                                </button>
-                                            ) : null}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </section>
-                ))}
-
-                <div className="flex flex-col gap-3 rounded-[28px] border border-[var(--stroke)] bg-white/72 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                    <p className="text-sm leading-6 text-[var(--muted-foreground)]">
-                        {copy.progress} {answeredCount}/{visibleQuestions.length}
-                    </p>
-                    <button
-                        type="button"
-                        onClick={() => router.push("/results")}
-                        disabled={!questionnaireComplete}
-                        className="inline-flex items-center justify-center rounded-full bg-[var(--accent-strong)] px-6 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[var(--muted)] disabled:text-[var(--muted-foreground)]"
-                    >
-                        {copy.results}
-                    </button>
-                </div>
+                        }
+                    />
+                ) : null}
             </div>
         </AppShell>
     );

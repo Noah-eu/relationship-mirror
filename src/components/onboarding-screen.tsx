@@ -1,8 +1,20 @@
 'use client';
 
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/app-shell";
+import QuestionStepCard from "@/components/question-step-card";
 import { useRelationship } from "@/components/relationship-context";
+import { defaultOnboardingState } from "@/lib/relationship-data";
+import {
+    getAnsweredQuestionIds,
+    getCurrentQuestionId,
+    getFlowProgress,
+    getNextQuestionId,
+    getPreviousQuestionId,
+    getQuestionIdAfterAnswer,
+} from "@/lib/question-flow";
+import { getVisibleOnboardingQuestions } from "@/lib/relationship-engine";
 
 const onboardingCopy = {
     cz: {
@@ -10,6 +22,9 @@ const onboardingCopy = {
         title: "Nejdřív vyber, co se tvého vztahu opravdu týká",
         description:
             "Stačí pár krátkých odpovědí a ukážou se jen ty otázky, které pro tebe dávají smysl.",
+        questionLabel: "Otázka",
+        back: "Zpět",
+        next: "Další",
         continue: "Pokračovat k otázkám",
         incomplete: "Nejdřív projdi všechny viditelné otázky nahoře.",
         progress: "Hotovo",
@@ -28,6 +43,9 @@ const onboardingCopy = {
         title: "Start by choosing what really fits your relationship",
         description:
             "A few short answers are enough to show only the questions that make sense for you.",
+        questionLabel: "Question",
+        back: "Back",
+        next: "Next",
         continue: "Continue to questions",
         incomplete: "First go through all visible questions above.",
         progress: "Done",
@@ -48,12 +66,105 @@ export default function OnboardingScreen() {
     const {
         language,
         onboarding,
-        onboardingComplete,
         onboardingProgress,
         setOnboardingAnswer,
         visibleOnboardingQuestions,
     } = useRelationship();
     const copy = onboardingCopy[language];
+    const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
+    const questionIds = useMemo(
+        () => visibleOnboardingQuestions.map((question) => question.id),
+        [visibleOnboardingQuestions],
+    );
+    const answeredQuestionIds = useMemo(
+        () => getAnsweredQuestionIds(questionIds, onboarding, (value) => value !== null && value !== undefined),
+        [questionIds, onboarding],
+    );
+    const resolvedQuestionId = getCurrentQuestionId(
+        questionIds,
+        currentQuestionId,
+        answeredQuestionIds,
+    );
+    const currentQuestion = visibleOnboardingQuestions.find(
+        (question) => question.id === resolvedQuestionId,
+    );
+    const progress = getFlowProgress(
+        questionIds,
+        resolvedQuestionId,
+        answeredQuestionIds,
+    );
+    const previousQuestionId = getPreviousQuestionId(
+        questionIds,
+        resolvedQuestionId,
+        answeredQuestionIds,
+    );
+    const nextQuestionId = getNextQuestionId(
+        questionIds,
+        resolvedQuestionId,
+        answeredQuestionIds,
+    );
+
+    useEffect(() => {
+        setCurrentQuestionId(resolvedQuestionId);
+    }, [resolvedQuestionId]);
+
+    function getNextOnboardingState(questionId: string, value: string | boolean) {
+        const nextOnboarding = {
+            ...defaultOnboardingState,
+            ...onboarding,
+            [questionId]: value,
+        };
+
+        if (questionId === "hasChildren" && value === false) {
+            nextOnboarding.childrenType = null;
+        }
+
+        return nextOnboarding;
+    }
+
+    function handleSelect(value: string | boolean) {
+        if (!currentQuestion) {
+            return;
+        }
+
+        const nextOnboarding = getNextOnboardingState(currentQuestion.id, value);
+        const nextVisibleQuestions = getVisibleOnboardingQuestions(nextOnboarding);
+        const nextVisibleQuestionIds = nextVisibleQuestions.map((question) => question.id);
+        const followingQuestionId = getQuestionIdAfterAnswer(
+            nextVisibleQuestionIds,
+            currentQuestion.id,
+        );
+
+        setOnboardingAnswer(currentQuestion.id, value);
+
+        if (followingQuestionId) {
+            setCurrentQuestionId(followingQuestionId);
+            return;
+        }
+
+        router.push("/questionnaire");
+    }
+
+    function handleBack() {
+        if (previousQuestionId) {
+            setCurrentQuestionId(previousQuestionId);
+        }
+    }
+
+    function handleNext() {
+        if (!currentQuestion) {
+            return;
+        }
+
+        if (nextQuestionId) {
+            setCurrentQuestionId(nextQuestionId);
+            return;
+        }
+
+        if (onboarding[currentQuestion.id] !== null) {
+            router.push("/questionnaire");
+        }
+    }
 
     return (
         <AppShell
@@ -88,67 +199,35 @@ export default function OnboardingScreen() {
                 </div>
             }
         >
-            <div className="space-y-5">
-                {visibleOnboardingQuestions.map((question, index) => (
-                    <section
-                        key={question.id}
-                        className="rounded-[28px] border border-[var(--stroke)] bg-[var(--panel-soft)] p-5 sm:p-6"
-                    >
-                        <div className="mb-5 space-y-2">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                                {index + 1}
-                            </p>
-                            <h2 className="text-xl font-semibold text-[var(--foreground)]">
-                                {language === "cz" ? question.textCZ : question.textEN}
-                            </h2>
-                            {question.clarifierCZ || question.clarifierEN ? (
-                                <p className="max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">
-                                    {language === "cz" ? question.clarifierCZ : question.clarifierEN}
-                                </p>
-                            ) : null}
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                            {question.options.map((option) => {
-                                const isSelected = onboarding[question.id] === option.value;
-
-                                return (
-                                    <button
-                                        key={`${question.id}-${String(option.value)}`}
-                                        type="button"
-                                        onClick={() => setOnboardingAnswer(question.id, option.value)}
-                                        className={`rounded-[24px] border px-4 py-4 text-left transition ${isSelected
-                                            ? "border-[var(--accent-strong)] bg-white shadow-[0_18px_40px_rgba(76,96,88,0.12)]"
-                                            : "border-[var(--stroke)] bg-white/65 hover:bg-white"
-                                            }`}
-                                    >
-                                        <p className="text-base font-semibold text-[var(--foreground)]">
-                                            {language === "cz" ? option.labelCZ : option.labelEN}
-                                        </p>
-                                        {option.hintCZ || option.hintEN ? (
-                                            <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                                                {language === "cz" ? option.hintCZ : option.hintEN}
-                                            </p>
-                                        ) : null}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </section>
-                ))}
-
-                <div className="flex flex-col gap-3 rounded-[28px] border border-[var(--stroke)] bg-white/70 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                    <p className="text-sm leading-6 text-[var(--muted-foreground)]">{copy.incomplete}</p>
-                    <button
-                        type="button"
-                        onClick={() => router.push("/questionnaire")}
-                        disabled={!onboardingComplete}
-                        className="inline-flex items-center justify-center rounded-full bg-[var(--accent-strong)] px-6 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-[var(--muted)] disabled:text-[var(--muted-foreground)]"
-                    >
-                        {copy.continue}
-                    </button>
-                </div>
-            </div>
+            {currentQuestion ? (
+                <QuestionStepCard
+                    progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
+                    progressCurrent={progress.currentNumber}
+                    progressTotal={progress.totalQuestions}
+                    questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
+                    questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
+                    clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
+                    options={currentQuestion.options.map((option) => ({
+                        key: `${currentQuestion.id}-${String(option.value)}`,
+                        label: language === "cz" ? option.labelCZ : option.labelEN,
+                        hint: language === "cz" ? option.hintCZ : option.hintEN,
+                        selected: onboarding[currentQuestion.id] === option.value,
+                        onSelect: () => handleSelect(option.value),
+                    }))}
+                    optionsClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+                    backLabel={copy.back}
+                    nextLabel={nextQuestionId ? copy.next : copy.continue}
+                    onBack={handleBack}
+                    onNext={handleNext}
+                    canGoBack={Boolean(previousQuestionId)}
+                    canGoNext={onboarding[currentQuestion.id] !== null}
+                    footer={
+                        <p className="text-sm leading-6 text-[var(--muted-foreground)]">
+                            {copy.incomplete}
+                        </p>
+                    }
+                />
+            ) : null}
         </AppShell>
     );
 }
