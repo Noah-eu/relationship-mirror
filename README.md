@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Relationship Mirror / Vztah pod lupou
 
-## Getting Started
+Frontend-only MVP built with Next.js, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+The app provides a bilingual CZ/EN flow with four screens:
+
+- Landing page
+- Onboarding page
+- Questionnaire page
+- Results page
+
+## Core MVP behavior
+
+- CZ / EN toggle is available from the start.
+- Onboarding decides which sections and questions are shown.
+- Questions are defined in a data structure, not hardcoded in JSX.
+- Each questionnaire item has `id`, `area`, `textCZ`, `textEN`, `weight`, and `showIf` conditions.
+- Answers use a 1 to 5 scale where higher scores lean more toward preserving the relationship.
+- Results include total score, area scores, a simple interpretation, and the weakest areas.
+
+## Adaptive logic included
+
+- No children: hides `děti a rodina / children and family`.
+- Not living together: hides `domácnost / household`.
+- No shared finances: keeps only the general finance prompts.
+- `quick` mode shows the core set.
+- `deep` mode adds extra prompts across areas.
+
+## Project structure
+
+- `src/app`: App Router pages for landing, onboarding, questionnaire, and results.
+- `src/components`: UI shell, state provider, and page-level screen components.
+- `src/lib/relationship-data.ts`: onboarding configuration, area definitions, and question bank.
+- `src/lib/relationship-engine.ts`: adaptive filtering and score calculation.
+
+## Run locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in the browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Validation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use the standard checks:
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```
