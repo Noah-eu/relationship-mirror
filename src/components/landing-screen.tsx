@@ -6,66 +6,66 @@ import { useRelationship } from "@/components/relationship-context";
 
 const landingCopy = {
   cz: {
-    eyebrow: "Úvod",
+    eyebrow: "Začátek",
     title: "Vztah pod lupou",
     description:
-      "Klidný, dvojjazyčný nástroj pro první orientaci v tom, jestli vztah ještě stojí na pevných pilířích a které oblasti si zaslouží největší pozornost.",
-    primary: "Začít onboarding",
-    secondary: "Pokračovat v dotazníku",
-    featuresTitle: "Co MVP už umí",
+      "Krátký a klidný způsob, jak si ujasnit, co ve vztahu drží a kde se zbytečně ztrácí síla.",
+    primary: "Začít",
+    secondary: "Pokračovat k otázkám",
+    featuresTitle: "Co tu najdeš",
     features: [
       {
-        title: "Adaptivní průchod",
-        text: "Onboarding skrývá sekce, které se vás netýkají, a omezuje finanční část, pokud finance nesdílíte.",
+        title: "Jen to, co se tě týká",
+        text: "Otázky se skládají podle toho, co se ve vztahu opravdu řeší.",
       },
       {
-        title: "CZ / EN od startu",
-        text: "Jazyk přepnete hned nahoře a celé flow se okamžitě přeloží bez ztráty stavu.",
+        title: "Čeština i angličtina",
+        text: "Jazyk můžeš přepnout kdykoli a zůstaneš tam, kde právě jsi.",
       },
       {
-        title: "Lokální výsledky",
-        text: "Skóre se počítá jen ve frontendu z datově definovaných otázek a přehledně ukáže slabší oblasti.",
+        title: "Přehledné shrnutí",
+        text: "Na konci uvidíš, na čem vztah stojí a kde si zaslouží víc péče.",
       },
     ],
-    promiseTitle: "Jak s tím pracovat",
+    promiseTitle: "Jak tím projít",
     promise: [
-      "Vyplň onboarding, aby appka vybrala relevantní oblasti.",
-      "Odpověz na škále 1 až 5, kde vyšší číslo znamená spíš důvod vztah zachovat.",
-      "Na konci dostaneš celkové skóre, skóre po oblastech a krátkou interpretaci.",
+      "Na začátku vybereš, které oblasti se vztahu opravdu týkají.",
+      "Pak projdeš otázky na škále 1 až 5, kde vyšší číslo znamená spíš zdravější stav.",
+      "Nakonec dostaneš stručné shrnutí a skóre po oblastech.",
     ],
-    notesTitle: "Co teď vědomě neřešíme",
-    notes: ["Žádný backend", "Žádný login", "Žádná AI interpretace"],
+    notesTitle: "Dobré vědět",
+    notes: ["Bez účtu", "Nic se nikam neposílá", "Shrnutí není verdikt"],
   },
   en: {
-    eyebrow: "Landing",
+    eyebrow: "Start",
     title: "The Relationship Mirror",
     description:
-      "A calm, bilingual tool for a first orientation on whether the relationship still rests on solid pillars and which areas need the most attention.",
-    primary: "Start onboarding",
-    secondary: "Resume questionnaire",
-    featuresTitle: "What the MVP already does",
+      "A short and calm way to sort out what is still holding the relationship and where it is losing energy.",
+    primary: "Start",
+    secondary: "Continue to questions",
+    featuresTitle: "What you will find here",
     features: [
       {
-        title: "Adaptive flow",
-        text: "Onboarding hides sections that do not apply to you and limits finance questions when money is not shared.",
+        title: "Only what fits your situation",
+        text: "The questions adjust to what is actually part of your relationship.",
       },
       {
-        title: "CZ / EN from the start",
-        text: "The language toggle is available immediately and the whole flow switches without losing state.",
+        title: "Czech and English",
+        text: "You can switch language at any time without losing your place.",
       },
       {
-        title: "Local results",
-        text: "Scoring is calculated purely in the frontend from data-defined questions and highlights weaker areas clearly.",
+        title: "A clear summary",
+        text: "At the end you will see what supports the relationship and where it may need more care.",
       },
     ],
-    promiseTitle: "How to use it",
+    promiseTitle: "How to move through it",
     promise: [
-      "Complete onboarding so the app can choose relevant areas.",
-      "Answer on a 1 to 5 scale where higher numbers lean more toward preserving the relationship.",
-      "At the end, you get a total score, area scores, and a short interpretation.",
+      "Start by choosing which parts of the relationship really apply to you.",
+      "Then answer on a 1 to 5 scale, where higher numbers point to a healthier situation.",
+      "At the end, you get a short summary and scores by area.",
     ],
-    notesTitle: "Intentionally out of scope right now",
-    notes: ["No backend", "No login", "No AI interpretation"],
+    notesTitle: "Good to know",
+    notes: ["No account needed", "Nothing is sent anywhere", "The summary is not a verdict"],
   },
 } as const;
 
@@ -118,8 +118,8 @@ export default function LandingScreen() {
           <div className="space-y-4">
             <p className="max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
               {language === "cz"
-                ? "MVP je navržené jako první zrcadlo, ne jako definitivní verdikt. Cíl je rychle oddělit relevantní témata od šumu a dát přehled, kde vztah drží a kde už ztrácí půdu pod nohama."
-                : "This MVP is designed as a first mirror, not a final verdict. The point is to separate relevant topics from noise quickly and show where the relationship still holds and where it is losing ground."}
+                ? "Nejde o soud ani o definitivní odpověď. Je to první klidný pohled na to, co ve vztahu funguje a co už si říká o větší pozornost."
+                : "This is not a judgment or a final answer. It is a calm first look at what is working in the relationship and what may need more attention."}
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">

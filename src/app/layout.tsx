@@ -16,7 +16,7 @@ const literata = Literata({
 export const metadata: Metadata = {
   title: "Relationship Mirror | Vztah pod lupou",
   description:
-    "Bilingual adaptive relationship questionnaire MVP built with Next.js, TypeScript, and Tailwind.",
+    "A calm bilingual relationship reflection tool focused on what supports the relationship and where it needs more care.",
 };
 
 export default function RootLayout({

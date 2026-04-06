@@ -6,11 +6,12 @@ import {
     type Condition,
     type OnboardingQuestion,
     type OnboardingState,
+    type QuestionAnswerValue,
     type QuestionnaireQuestion,
     type ScaleValue,
 } from "@/lib/relationship-data";
 
-export type QuestionnaireAnswers = Partial<Record<string, ScaleValue>>;
+export type QuestionnaireAnswers = Partial<Record<string, QuestionAnswerValue>>;
 
 export type OutcomeBucket =
     | "relationship stands on strong foundations"
@@ -51,6 +52,10 @@ const CRITICAL_WARNING_THRESHOLD = 56;
 const WEAK_THRESHOLD = 60;
 const CRITICAL_WEAK_THRESHOLD = 64;
 const TOP_BUCKET_SCORE_THRESHOLD = 76;
+
+function isScaleValue(value: QuestionAnswerValue | undefined): value is ScaleValue {
+    return value !== undefined && value !== "na";
+}
 
 export function evaluateCondition(
     onboarding: OnboardingState,
@@ -129,22 +134,22 @@ export function calculateResults(
     const areaResults = questionnaireAreas
         .map((area) => {
             const areaQuestions = questions.filter((question) => question.area === area.id);
-            const answeredQuestions = areaQuestions.filter(
-                (question) => answers[question.id] !== undefined,
+            const scoredQuestions = areaQuestions.filter(
+                (question) => isScaleValue(answers[question.id]),
             );
 
-            if (areaQuestions.length === 0 || answeredQuestions.length === 0) {
+            if (areaQuestions.length === 0 || scoredQuestions.length === 0) {
                 return null;
             }
 
-            const obtainedWeighted = answeredQuestions.reduce((sum, question) => {
-                return sum + (answers[question.id] ?? 0) * question.weight;
+            const obtainedWeighted = scoredQuestions.reduce((sum, question) => {
+                return sum + (answers[question.id] as ScaleValue) * question.weight;
             }, 0);
-            const maxWeighted = answeredQuestions.reduce(
+            const maxWeighted = scoredQuestions.reduce(
                 (sum, question) => sum + 5 * question.weight,
                 0,
             );
-            const totalWeight = answeredQuestions.reduce(
+            const totalWeight = scoredQuestions.reduce(
                 (sum, question) => sum + question.weight,
                 0,
             );
@@ -155,7 +160,7 @@ export function calculateResults(
                 areaId: area.id,
                 score,
                 average: Number(average.toFixed(1)),
-                answered: answeredQuestions.length,
+                answered: scoredQuestions.length,
                 maxWeighted,
                 obtainedWeighted,
             };
@@ -163,10 +168,10 @@ export function calculateResults(
         .filter((result): result is AreaResult => result !== null);
 
     const answeredQuestions = questions.filter(
-        (question) => answers[question.id] !== undefined,
+        (question) => isScaleValue(answers[question.id]),
     );
     const obtainedWeighted = answeredQuestions.reduce((sum, question) => {
-        return sum + (answers[question.id] ?? 0) * question.weight;
+        return sum + (answers[question.id] as ScaleValue) * question.weight;
     }, 0);
     const maxWeighted = answeredQuestions.reduce(
         (sum, question) => sum + 5 * question.weight,

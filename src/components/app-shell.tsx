@@ -16,14 +16,14 @@ type AppShellProps = {
 const stepCopy = {
   cz: {
     brand: "Vztah pod lupou",
-    strapline: "Frontendové MVP pro klidnou, dvojjazyčnou a adaptivní reflexi vztahu.",
-    steps: ["Úvod", "Onboarding", "Dotazník", "Výsledky"],
+    strapline: "Klidný prostor, kde si můžeš srovnat, jak na tom vztah teď je.",
+    steps: ["Začátek", "Na úvod", "Otázky", "Shrnutí"],
     language: "Jazyk",
   },
   en: {
     brand: "The Relationship Mirror",
-    strapline: "A calm, bilingual, adaptive front-end MVP for relationship reflection.",
-    steps: ["Landing", "Onboarding", "Questionnaire", "Results"],
+    strapline: "A calm space to sort out how the relationship feels right now.",
+    steps: ["Start", "Basics", "Questions", "Summary"],
     language: "Language",
   },
 } as const;
@@ -54,7 +54,7 @@ export default function AppShell({
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-2">
               <span className="inline-flex items-center rounded-full border border-[var(--stroke)] bg-[var(--panel-soft)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--accent-strong)]">
-                Relationship Mirror MVP
+                Relationship Mirror
               </span>
               <div>
                 <p className="font-serif text-3xl text-[var(--foreground)] sm:text-4xl">

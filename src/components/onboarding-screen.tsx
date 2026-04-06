@@ -6,37 +6,39 @@ import { useRelationship } from "@/components/relationship-context";
 
 const onboardingCopy = {
     cz: {
-        eyebrow: "Onboarding",
-        title: "Nejprve vyberme, co je pro váš vztah relevantní",
+        eyebrow: "Na úvod",
+        title: "Nejdřív vyber, co se tvého vztahu opravdu týká",
         description:
-            "Krátká sada vstupních otázek určí, které sekce a otázky mají smysl zobrazit. Díky tomu nebudete odpovídat na něco, co se vás netýká.",
-        continue: "Pokračovat do dotazníku",
-        incomplete: "Nejdřív vyplň všechny viditelné onboarding otázky.",
-        summaryTitle: "Co onboarding ovlivní",
+            "Stačí pár krátkých odpovědí a ukážou se jen ty otázky, které pro tebe dávají smysl.",
+        continue: "Pokračovat k otázkám",
+        incomplete: "Nejdřív projdi všechny viditelné otázky nahoře.",
+        progress: "Hotovo",
+        summaryTitle: "Co se podle toho ukáže",
         summary: [
-            "Bez dětí zmizí celá sekce Děti a rodina.",
-            "Bez společné domácnosti se skryje Domácnost.",
-            "Bez sdílených financí zůstanou jen obecné finanční otázky.",
-            "Délka vztahu upraví otázky pro ranou fázi versus dlouhodobé vzorce.",
-            "Typ rodiny vybere konkrétní otázky pro společné, nevlastní nebo patchwork rodičovství.",
-            "Režim Quick / Deep mění počet otázek napříč oblastmi.",
+            "Když do vztahu teď nezahrnuješ děti, část o rodině se neukáže.",
+            "Když spolu nebydlíte, otázky k domácnosti zůstanou pryč.",
+            "Když nesdílíte peníze, ukážou se jen obecnější otázky k financím.",
+            "Délka vztahu jemně upraví, na co se budeme ptát.",
+            "Rodinná situace pomůže vybrat jen ty otázky, které dávají smysl právě vám.",
+            "Pokud budeš chtít, přidá se i část o intimitě a sexuální blízkosti.",
         ],
     },
     en: {
-        eyebrow: "Onboarding",
-        title: "First, let us determine what is actually relevant to your relationship",
+        eyebrow: "Basics",
+        title: "Start by choosing what really fits your relationship",
         description:
-            "This short entry set decides which sections and questions are worth showing. That way you do not have to answer prompts that do not apply to you.",
-        continue: "Continue to questionnaire",
-        incomplete: "Fill in all visible onboarding questions first.",
-        summaryTitle: "What onboarding changes",
+            "A few short answers are enough to show only the questions that make sense for you.",
+        continue: "Continue to questions",
+        incomplete: "First go through all visible questions above.",
+        progress: "Done",
+        summaryTitle: "What this changes",
         summary: [
-            "No children means the entire Children and family section disappears.",
-            "Not living together hides Household.",
-            "Not sharing finances keeps only the general finance prompts.",
-            "Relationship duration shifts prompts between early-stage pacing and long-term patterns.",
-            "Family type selects child-related prompts for shared, step, or blended parenting setups.",
-            "Quick / Deep mode changes the question count across areas.",
+            "If children are not part of the relationship, the family section stays out.",
+            "If you do not live together, household questions stay hidden.",
+            "If you do not share money, only the more general finance questions stay in.",
+            "Relationship length gently changes some of the questions.",
+            "Family setup helps pick only the questions that fit your situation.",
+            "If you want, you can also include a section on intimacy and sexual connection.",
         ],
     },
 } as const;
@@ -62,7 +64,7 @@ export default function OnboardingScreen() {
                 <div className="space-y-6">
                     <div className="rounded-[24px] border border-[var(--stroke)] bg-[var(--panel)] p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
-                            Progress
+                            {copy.progress}
                         </p>
                         <p className="mt-3 font-serif text-4xl text-[var(--foreground)]">
                             {onboardingProgress.answeredCount}/{onboardingProgress.totalCount}
@@ -116,8 +118,8 @@ export default function OnboardingScreen() {
                                         type="button"
                                         onClick={() => setOnboardingAnswer(question.id, option.value)}
                                         className={`rounded-[24px] border px-4 py-4 text-left transition ${isSelected
-                                                ? "border-[var(--accent-strong)] bg-white shadow-[0_18px_40px_rgba(76,96,88,0.12)]"
-                                                : "border-[var(--stroke)] bg-white/65 hover:bg-white"
+                                            ? "border-[var(--accent-strong)] bg-white shadow-[0_18px_40px_rgba(76,96,88,0.12)]"
+                                            : "border-[var(--stroke)] bg-white/65 hover:bg-white"
                                             }`}
                                     >
                                         <p className="text-base font-semibold text-[var(--foreground)]">

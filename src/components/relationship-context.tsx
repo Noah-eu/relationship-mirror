@@ -12,7 +12,7 @@ import {
   type Language,
   type OnboardingField,
   type OnboardingState,
-  type ScaleValue,
+  type QuestionAnswerValue,
 } from "@/lib/relationship-data";
 import {
   calculateResults,
@@ -39,7 +39,7 @@ type RelationshipContextValue = {
     field: OnboardingField,
     value: string | boolean,
   ) => void;
-  setQuestionAnswer: (questionId: string, value: ScaleValue) => void;
+  setQuestionAnswer: (questionId: string, value: QuestionAnswerValue) => void;
   resetAnswers: () => void;
   restartAll: () => void;
 };
@@ -164,7 +164,7 @@ export function RelationshipProvider({ children }: { children: ReactNode }) {
     });
   }
 
-  function setQuestionAnswer(questionId: string, value: ScaleValue) {
+  function setQuestionAnswer(questionId: string, value: QuestionAnswerValue) {
     setAnswers((currentAnswers) => ({
       ...currentAnswers,
       [questionId]: value,

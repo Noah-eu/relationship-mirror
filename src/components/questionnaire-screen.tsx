@@ -4,54 +4,62 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/app-shell";
 import { useRelationship } from "@/components/relationship-context";
-import { scaleLabels } from "@/lib/relationship-data";
+import { NOT_APPLICABLE, notApplicableLabels, scaleLabels } from "@/lib/relationship-data";
 
 const questionnaireCopy = {
     cz: {
-        eyebrow: "Dotazník",
-        title: "Adaptivní sada vztahových otázek",
+        eyebrow: "Otázky",
+        title: "Otázky k tvému vztahu",
         description:
-            "Zobrazené oblasti vychází z onboardingu. Odpovídej na škále 1 až 5. Vyšší skóre znamená, že daná oblast spíš podporuje důvod vztah zachovat.",
-        gateTitle: "Nejdřív onboarding",
+            "Ukazují se jen oblasti, které se vztahu opravdu týkají. Odpovídej na škále 1 až 5. Vyšší číslo znamená spíš zdravější stav.",
+        gateTitle: "Nejdřív krátký úvod",
         gateText:
-            "Aby dotazník dával smysl, nejdřív potřebujeme kontext o vašem vztahu a relevantních sekcích.",
-        gateAction: "Přejít na onboarding",
+            "Aby otázky dávaly smysl, potřebujeme nejdřív pár základních informací o vztahu.",
+        gateAction: "Přejít na úvodní otázky",
         progress: "Vyplněno",
-        results: "Zobrazit výsledky",
-        modeLabel: "Režim",
-        adaptiveTitle: "Aktivní adaptace",
-        hiddenChildren: "Sekce Děti a rodina byla skryta.",
-        hiddenHousehold: "Sekce Domácnost byla skryta.",
-        limitedFinances: "Finance jsou omezené na obecné otázky.",
-        shortDuration: "Krátký vztah: zvýrazněné jsou otázky na tempo, ranou důvěru a přiměřenost očekávání.",
-        establishedDuration: "Delší vztah: přidané jsou otázky na opakující se vzorce, historii a nosnost větších závazků.",
-        longDuration: "Dlouhodobý vztah: dotazník víc sleduje únavu, cynismus a dlouhodobou opravitelnost.",
-        familyOurs: "Společné děti: zobrazené jsou otázky na rodičovské sladění a společnou linii.",
-        familyStep: "Moje nebo partnerovy děti: zobrazené jsou otázky na role, loajalitu a jasnost očekávání.",
-        familyBlended: "Patchwork rodina: zobrazené jsou otázky na přechody mezi domácnostmi a koordinaci více vazeb.",
+        results: "Zobrazit shrnutí",
+        modeLabel: "Verze",
+        shorterMode: "kratší",
+        detailedMode: "podrobnější",
+        notesTitle: "Co se ti teď ukazuje",
+        hiddenChildren: "Protože do vztahu teď nezahrnuješ děti, rodinná část se neukáže.",
+        hiddenHousehold: "Protože spolu nebydlíte, část o domácnosti zůstává pryč.",
+        limitedFinances: "Protože nesdílíte peníze, zůstávají jen obecnější otázky k financím.",
+        shortDuration: "Protože jste spolu krátce, víc se tu díváme na tempo, první důvěru a očekávání.",
+        establishedDuration: "Protože spolu už nějakou dobu jste, víc se tu ukazují opakující se vzorce a dlouhodobější věci.",
+        longDuration: "U delšího vztahu se víc ukáže únava, nosnost a to, co se vrací pořád dokola.",
+        familyOurs: "U společných dětí se víc díváme na to, jak držíte společnou rodičovskou linku.",
+        familyStep: "Když jsou ve vztahu tvoje nebo partnerovy děti, víc se ptáme na role a očekávání.",
+        familyBlended: "V patchwork rodině se víc ukážou otázky na přechody mezi domácnostmi a spolupráci.",
+        intimacyIncluded: "Do otázek je zahrnutá i oblast intimity a sexuální blízkosti.",
+        notApplicableNote: "U některých otázek můžeš zvolit i To se mě netýká.",
     },
     en: {
-        eyebrow: "Questionnaire",
-        title: "Adaptive relationship question set",
+        eyebrow: "Questions",
+        title: "Questions about your relationship",
         description:
-            "The visible areas are derived from onboarding. Answer on a 1 to 5 scale. Higher scores mean the area leans more toward preserving the relationship.",
-        gateTitle: "Onboarding first",
+            "You only see the areas that fit your situation. Answer on a 1 to 5 scale. Higher numbers point to a healthier situation.",
+        gateTitle: "Start with the basics",
         gateText:
-            "To make the questionnaire meaningful, we first need context about your relationship and which sections are relevant.",
-        gateAction: "Go to onboarding",
+            "To make these questions meaningful, we first need a little context about the relationship.",
+        gateAction: "Go to the basics",
         progress: "Completed",
-        results: "View results",
-        modeLabel: "Mode",
-        adaptiveTitle: "Active adaptation",
-        hiddenChildren: "Children and family has been hidden.",
-        hiddenHousehold: "Household has been hidden.",
-        limitedFinances: "Finances are limited to general prompts.",
-        shortDuration: "Short relationship: prompts now emphasize pacing, early trust, and the realism of expectations.",
-        establishedDuration: "Longer relationship: prompts have been added for recurring patterns, history, and the weight of bigger commitments.",
-        longDuration: "Long-term relationship: the questionnaire leans more into fatigue, cynicism, and long-range repair capacity.",
-        familyOurs: "Shared children: prompts focus on parenting alignment and a consistent shared line.",
-        familyStep: "My children or their children: prompts focus on roles, loyalty tension, and clearer expectations.",
-        familyBlended: "Blended family: prompts focus on transitions between households and coordination across multiple bonds.",
+        results: "View summary",
+        modeLabel: "Version",
+        shorterMode: "shorter",
+        detailedMode: "more detailed",
+        notesTitle: "What is showing up now",
+        hiddenChildren: "Because children are not part of the relationship here, the family section stays out.",
+        hiddenHousehold: "Because you do not live together, the household section stays out.",
+        limitedFinances: "Because money is not shared, only the more general finance questions remain.",
+        shortDuration: "Because the relationship is still new, the questions lean more toward pacing, early trust, and expectations.",
+        establishedDuration: "Because you have been together for a while, more recurring patterns and longer-term themes show up here.",
+        longDuration: "In a longer relationship, the questions look more at wear, capacity, and what keeps repeating.",
+        familyOurs: "With shared children, the questions look more at whether you hold a steady parenting line together.",
+        familyStep: "When the relationship includes your children or your partner's children, the questions lean more toward roles and expectations.",
+        familyBlended: "In a blended family, more questions show up around transitions between households and staying coordinated.",
+        intimacyIncluded: "This questionnaire also includes intimacy and sexual connection.",
+        notApplicableNote: "For some questions, you can also choose This does not apply to me.",
     },
 } as const;
 
@@ -72,10 +80,13 @@ export default function QuestionnaireScreen() {
         area,
         questions: visibleQuestions.filter((question) => question.area === area.id),
     }));
+    const hasNotApplicableQuestions = visibleQuestions.some((question) => question.allowsNotApplicable);
     const answeredCount = visibleQuestions.filter(
         (question) => answers[question.id] !== undefined,
     ).length;
     const notes: string[] = [];
+
+    const modeLabel = onboarding.mode === "deep" ? copy.detailedMode : copy.shorterMode;
 
     if (onboarding.hasChildren === false) {
         notes.push(copy.hiddenChildren);
@@ -113,6 +124,10 @@ export default function QuestionnaireScreen() {
         notes.push(copy.familyBlended);
     }
 
+    if (onboarding.includeIntimacy === true) {
+        notes.push(copy.intimacyIncluded);
+    }
+
     if (!onboardingComplete) {
         return (
             <AppShell
@@ -148,12 +163,12 @@ export default function QuestionnaireScreen() {
                             {answeredCount}/{visibleQuestions.length}
                         </p>
                         <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-                            {copy.modeLabel}: <span className="font-semibold text-[var(--foreground)]">{onboarding.mode?.toUpperCase()}</span>
+                            {copy.modeLabel}: <span className="font-semibold text-[var(--foreground)]">{modeLabel}</span>
                         </p>
                     </div>
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
-                            {copy.adaptiveTitle}
+                            {copy.notesTitle}
                         </p>
                         <div className="mt-4 space-y-3">
                             {notes.map((item) => (
@@ -171,7 +186,7 @@ export default function QuestionnaireScreen() {
         >
             <div className="space-y-6">
                 <div className="rounded-[28px] border border-[var(--stroke)] bg-[var(--panel-soft)] p-5 sm:p-6">
-                    <div className="grid gap-3 sm:grid-cols-5">
+                    <div className={`grid gap-3 ${hasNotApplicableQuestions ? "sm:grid-cols-6" : "sm:grid-cols-5"}`}>
                         {scaleLabels[language].map((item) => (
                             <div
                                 key={item.value}
@@ -183,6 +198,16 @@ export default function QuestionnaireScreen() {
                                 </p>
                             </div>
                         ))}
+                        {hasNotApplicableQuestions ? (
+                            <div className="rounded-[20px] border border-dashed border-[var(--stroke)] bg-white/65 px-4 py-3 text-center">
+                                <p className="text-sm font-semibold text-[var(--foreground)]">
+                                    {notApplicableLabels[language]}
+                                </p>
+                                <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+                                    {copy.notApplicableNote}
+                                </p>
+                            </div>
+                        ) : null}
                     </div>
                 </div>
 
@@ -221,12 +246,9 @@ export default function QuestionnaireScreen() {
                                                     {language === "cz" ? question.clarifierCZ : question.clarifierEN}
                                                 </p>
                                             </div>
-                                            <span className="rounded-full border border-[var(--stroke)] bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
-                                                w {question.weight}
-                                            </span>
                                         </div>
 
-                                        <div className="grid gap-2 sm:grid-cols-5">
+                                        <div className={`grid gap-2 ${question.allowsNotApplicable ? "sm:grid-cols-6" : "sm:grid-cols-5"}`}>
                                             {scaleLabels[language].map((item) => {
                                                 const isSelected = selectedValue === item.value;
 
@@ -236,8 +258,8 @@ export default function QuestionnaireScreen() {
                                                         type="button"
                                                         onClick={() => setQuestionAnswer(question.id, item.value)}
                                                         className={`rounded-[20px] border px-4 py-3 text-center transition ${isSelected
-                                                                ? "border-[var(--accent-strong)] bg-white shadow-[0_14px_34px_rgba(76,96,88,0.12)]"
-                                                                : "border-[var(--stroke)] bg-white/70 hover:bg-white"
+                                                            ? "border-[var(--accent-strong)] bg-white shadow-[0_14px_34px_rgba(76,96,88,0.12)]"
+                                                            : "border-[var(--stroke)] bg-white/70 hover:bg-white"
                                                             }`}
                                                     >
                                                         <p className="text-lg font-semibold text-[var(--foreground)]">
@@ -249,6 +271,20 @@ export default function QuestionnaireScreen() {
                                                     </button>
                                                 );
                                             })}
+                                            {question.allowsNotApplicable ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setQuestionAnswer(question.id, NOT_APPLICABLE)}
+                                                    className={`rounded-[20px] border px-4 py-3 text-center transition ${selectedValue === NOT_APPLICABLE
+                                                        ? "border-[var(--accent-strong)] bg-white shadow-[0_14px_34px_rgba(76,96,88,0.12)]"
+                                                        : "border-[var(--stroke)] bg-white/70 hover:bg-white"
+                                                        }`}
+                                                >
+                                                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                                                        {notApplicableLabels[language]}
+                                                    </p>
+                                                </button>
+                                            ) : null}
                                         </div>
                                     </div>
                                 );

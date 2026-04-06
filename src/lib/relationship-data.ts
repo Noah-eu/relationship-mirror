@@ -4,6 +4,10 @@ export type Mode = "quick" | "deep";
 
 export type ScaleValue = 1 | 2 | 3 | 4 | 5;
 
+export const NOT_APPLICABLE = "na" as const;
+
+export type QuestionAnswerValue = ScaleValue | typeof NOT_APPLICABLE;
+
 export type AreaId =
     | "foundation"
     | "safetyRespect"
@@ -14,6 +18,7 @@ export type AreaId =
     | "household"
     | "finances"
     | "partnershipIntimacy"
+    | "sexualConnection"
     | "childrenFamily"
     | "decisionTruth";
 
@@ -27,6 +32,7 @@ export type OnboardingField =
     | "hasChildren"
     | "childrenType"
     | "sharedFinances"
+    | "includeIntimacy"
     | "mode";
 
 export type OnboardingState = {
@@ -35,6 +41,7 @@ export type OnboardingState = {
     hasChildren: boolean | null;
     childrenType: ChildrenType | null;
     sharedFinances: boolean | null;
+    includeIntimacy: boolean | null;
     mode: Mode | null;
 };
 
@@ -80,6 +87,7 @@ export type QuestionnaireQuestion = {
     weight: number;
     showIf: Condition[];
     modes: Mode[];
+    allowsNotApplicable?: boolean;
 };
 
 const option = (
@@ -106,6 +114,7 @@ const question = (
     weight: number,
     showIf: Condition[] = [],
     modes: Mode[] = ["quick", "deep"],
+    allowsNotApplicable = false,
 ): QuestionnaireQuestion => ({
     id,
     area,
@@ -116,6 +125,7 @@ const question = (
     weight,
     showIf,
     modes,
+    allowsNotApplicable,
 });
 
 export const defaultOnboardingState: OnboardingState = {
@@ -124,8 +134,14 @@ export const defaultOnboardingState: OnboardingState = {
     hasChildren: null,
     childrenType: null,
     sharedFinances: null,
+    includeIntimacy: null,
     mode: null,
 };
+
+export const notApplicableLabels = {
+    cz: "To se mě netýká",
+    en: "This does not apply to me",
+} as const;
 
 export const questionnaireAreas: QuestionnaireArea[] = [
     {
@@ -146,7 +162,7 @@ export const questionnaireAreas: QuestionnaireArea[] = [
         id: "communication",
         titleCZ: "Komunikace",
         titleEN: "Communication",
-        descriptionCZ: "Jak snadno se u vás mluví o důležitých věcech.",
+        descriptionCZ: "Jak snadno se mezi vámi mluví o důležitých věcech.",
         descriptionEN: "How possible it feels to talk about important things.",
     },
     {
@@ -181,7 +197,7 @@ export const questionnaireAreas: QuestionnaireArea[] = [
         id: "finances",
         titleCZ: "Finance",
         titleEN: "Finances",
-        descriptionCZ: "Jak se u vás žije s penězi, výdaji a domluvou kolem nich.",
+        descriptionCZ: "Jak spolu žijete s penězi, výdaji a domluvou kolem nich.",
         descriptionEN: "How money, spending, and financial decisions are handled between you.",
     },
     {
@@ -190,6 +206,13 @@ export const questionnaireAreas: QuestionnaireArea[] = [
         titleEN: "Partnership and closeness",
         descriptionCZ: "Jestli mezi vámi zůstává teplo, blízkost a pocit, že jste tým.",
         descriptionEN: "Whether warmth, closeness, and a sense of team are still present.",
+    },
+    {
+        id: "sexualConnection",
+        titleCZ: "Intimita a sexuální blízkost",
+        titleEN: "Intimacy and sexual connection",
+        descriptionCZ: "Jestli je v téhle oblasti mezi vámi bezpečí, respekt a dost prostoru pro vzájemnost.",
+        descriptionEN: "Whether this part of the relationship feels safe, respectful, and mutual.",
     },
     {
         id: "childrenFamily",
@@ -273,15 +296,27 @@ export const onboardingQuestions: OnboardingQuestion[] = [
         ],
     },
     {
-        id: "mode",
-        textCZ: "Chceš kratší, nebo hlubší verzi?",
-        textEN: "Do you want the shorter or deeper version?",
-        clarifierCZ: "Quick je kratší. Deep jde víc do detailu.",
-        clarifierEN: "Quick is shorter. Deep goes into more detail.",
+        id: "includeIntimacy",
+        textCZ: "Chceš do dotazníku zahrnout i oblast intimity a sexuální blízkosti?",
+        textEN: "Do you want the questionnaire to include intimacy and sexual connection?",
+        clarifierCZ: "Když zvolíš ne, tahle část se v otázkách vůbec neukáže.",
+        clarifierEN: "If you choose no, this area will stay out of the questionnaire.",
         showIf: [],
         options: [
-            option("quick", "Quick", "Quick", "Kratší průchod", "Shorter pass"),
-            option("deep", "Deep", "Deep", "Víc detailu", "More detail"),
+            option(true, "Ano", "Yes"),
+            option(false, "Ne", "No"),
+        ],
+    },
+    {
+        id: "mode",
+        textCZ: "Chceš kratší, nebo podrobnější verzi?",
+        textEN: "Do you want the shorter or more detailed version?",
+        clarifierCZ: "Kratší verze je svižnější. Podrobnější jde víc do jemností.",
+        clarifierEN: "The shorter version is quicker. The more detailed version goes into more nuance.",
+        showIf: [],
+        options: [
+            option("quick", "Kratší verze", "Shorter version", "Méně otázek", "Fewer questions"),
+            option("deep", "Podrobnější verze", "More detailed version", "Víc otázek a jemnější obraz", "More questions and a fuller picture"),
         ],
     },
 ];
@@ -833,6 +868,102 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
         3,
         [],
         ["deep"],
+    ),
+    question(
+        "sexual-1",
+        "sexualConnection",
+        "Je mezi námi prostor pro něhu a fyzickou blízkost, která je oběma příjemná.",
+        "There is room between us for affection and physical closeness that feels good to both of us.",
+        "Když tohle téma u vás vůbec nehraje roli, můžeš zvolit To se mě netýká.",
+        "If this topic is not part of your relationship at all, you can choose This does not apply to me.",
+        2,
+        [{ field: "includeIntimacy", operator: "equals", value: true }],
+        ["quick", "deep"],
+        true,
+    ),
+    question(
+        "sexual-2",
+        "sexualConnection",
+        "O intimitě a sexuální blízkosti se spolu dá mluvit bez studu nebo tlaku.",
+        "We can talk about intimacy and sexual closeness without shame or pressure.",
+        "Jde o to, jestli se o tom dá mluvit klidně, i když se v něčem neshodnete.",
+        "This is about whether the topic can be discussed calmly, even when you do not fully match.",
+        3,
+        [{ field: "includeIntimacy", operator: "equals", value: true }],
+        ["quick", "deep"],
+        true,
+    ),
+    question(
+        "sexual-3",
+        "sexualConnection",
+        "Moje tempo a hranice jsou v téhle oblasti respektované.",
+        "My pace and boundaries are respected in this part of the relationship.",
+        "Patří sem i možnost říct ano, ne nebo teď ne bez nátlaku.",
+        "This includes being able to say yes, no, or not now without pressure.",
+        3,
+        [{ field: "includeIntimacy", operator: "equals", value: true }],
+        ["quick", "deep"],
+        true,
+    ),
+    question(
+        "sexual-4",
+        "sexualConnection",
+        "Když jeden z nás blízkost zrovna nechce, dá se to přijmout bez zranění nebo tlaku.",
+        "When one of us does not want closeness in the moment, it can be accepted without hurt or pressure.",
+        "Jde o to, jestli odmítnutí chvíle neznamená odmítnutí člověka.",
+        "This is about whether a no to the moment is not treated like a no to the person.",
+        3,
+        [{ field: "includeIntimacy", operator: "equals", value: true }],
+        ["quick", "deep"],
+        true,
+    ),
+    question(
+        "sexual-5",
+        "sexualConnection",
+        "V téhle oblasti mezi námi zůstává pocit vzájemnosti, ne povinnosti.",
+        "In this area, what stays between us feels mutual rather than dutiful.",
+        "Mysli na celkovou atmosféru, ne na jednu konkrétní situaci.",
+        "Think about the overall atmosphere, not one specific moment.",
+        2,
+        [{ field: "includeIntimacy", operator: "equals", value: true }],
+        ["quick", "deep"],
+        true,
+    ),
+    question(
+        "sexual-6",
+        "sexualConnection",
+        "Mám pocit, že moje potřeby v téhle oblasti mají místo.",
+        "I feel my needs have room in this part of the relationship.",
+        "Nemusí být splněné vždy hned, ale neměly by zůstávat bez místa nebo bez řeči.",
+        "They do not have to be met immediately, but they should not have to disappear or stay unspoken.",
+        2,
+        [{ field: "includeIntimacy", operator: "equals", value: true }],
+        ["quick", "deep"],
+        true,
+    ),
+    question(
+        "sexual-7",
+        "sexualConnection",
+        "Když se v téhle oblasti něco zadrhne, umíme se k tomu vrátit klidně.",
+        "When something feels off in this area, we can come back to it calmly.",
+        "Třeba po únavě, nemoci, stresu nebo delším odstupu.",
+        "For example after stress, illness, fatigue, or a longer period of distance.",
+        2,
+        [{ field: "includeIntimacy", operator: "equals", value: true }],
+        ["quick", "deep"],
+        true,
+    ),
+    question(
+        "sexual-8",
+        "sexualConnection",
+        "Celkově mi intimita a sexuální blízkost v tomhle vztahu spíš přináší blízkost než napětí.",
+        "Overall, intimacy and sexual connection in this relationship bring me more closeness than tension.",
+        "Jde o tvůj celkový dojem z téhle oblasti, ne o dokonalost.",
+        "This is about your overall sense of this part of the relationship, not perfection.",
+        3,
+        [{ field: "includeIntimacy", operator: "equals", value: true }],
+        ["quick", "deep"],
+        true,
     ),
     question(
         "children-1",

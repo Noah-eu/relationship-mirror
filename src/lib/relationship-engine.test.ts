@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+    NOT_APPLICABLE,
     defaultOnboardingState,
     type AreaId,
     type OnboardingState,
-    type ScaleValue,
+    type QuestionAnswerValue,
 } from "./relationship-data";
 import {
     calculateResults,
@@ -20,13 +21,14 @@ const fullRelationshipOnboarding: OnboardingState = {
     hasChildren: true,
     childrenType: "ours",
     sharedFinances: true,
+    includeIntimacy: true,
     mode: "deep",
 };
 
 const visibleQuestions = getVisibleQuestionnaireQuestions(fullRelationshipOnboarding);
 
 function buildAnswers(
-    resolver: ScaleValue | ((areaId: AreaId, index: number) => ScaleValue),
+    resolver: QuestionAnswerValue | ((areaId: AreaId, index: number) => QuestionAnswerValue),
 ): QuestionnaireAnswers {
     return Object.fromEntries(
         visibleQuestions.map((question, index) => {
@@ -95,4 +97,21 @@ test("generally healthy relationship with one mildly weaker area stays positive 
     assert.match(narrative.weakens, /normal places for ongoing care/i);
     assert.match(narrative.warning, /Nothing here currently reads as a sharp warning sign on its own/i);
     assert.doesNotMatch(narrative.next, /test of change|repair attempt|major change/i);
+});
+
+test("not-applicable intimacy answers are ignored in scoring without creating warnings", () => {
+    const results = calculateResults(
+        visibleQuestions,
+        buildAnswers((areaId, index) => {
+            if (areaId === "sexualConnection") {
+                return NOT_APPLICABLE;
+            }
+
+            return index % 2 === 0 ? 5 : 4;
+        }),
+    );
+
+    assert.equal(results.outcomeBucket, "relationship stands on strong foundations");
+    assert.equal(results.warningAreas.length, 0);
+    assert.equal(results.areaResults.some((area) => area.areaId === "sexualConnection"), false);
 });
