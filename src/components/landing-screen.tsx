@@ -9,14 +9,14 @@ const landingCopy = {
     eyebrow: "Začátek",
     title: "Vztah pod lupou",
     description:
-      "Krátký a klidný způsob, jak si ujasnit, co ve vztahu drží a kde se zbytečně ztrácí síla.",
+      "Krátký a klidný způsob, jak si ujasnit, co váš vztah drží a kde zbytečně ztrácí energii.",
     primary: "Začít",
     secondary: "Pokračovat k otázkám",
-    featuresTitle: "Co tu najdeš",
+    featuresTitle: "Co tady najdeš",
     features: [
       {
         title: "Jen to, co se tě týká",
-        text: "Otázky se skládají podle toho, co se ve vztahu opravdu řeší.",
+        text: "Otázky se skládají podle toho, co do vašeho vztahu opravdu patří.",
       },
       {
         title: "Čeština i angličtina",
@@ -29,12 +29,12 @@ const landingCopy = {
     ],
     promiseTitle: "Jak tím projít",
     promise: [
-      "Na začátku vybereš, které oblasti se vztahu opravdu týkají.",
+      "Na začátku vybereš, které oblasti se vašeho vztahu opravdu týkají.",
       "Pak projdeš otázky na škále 1 až 5, kde vyšší číslo znamená spíš zdravější stav.",
       "Nakonec dostaneš stručné shrnutí a skóre po oblastech.",
     ],
     notesTitle: "Dobré vědět",
-    notes: ["Bez účtu", "Nic se nikam neposílá", "Shrnutí není verdikt"],
+    notes: ["Bez účtu", "Nic se nikam neodesílá", "Shrnutí není verdikt"],
   },
   en: {
     eyebrow: "Start",
@@ -118,7 +118,7 @@ export default function LandingScreen() {
           <div className="space-y-4">
             <p className="max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
               {language === "cz"
-                ? "Nejde o soud ani o definitivní odpověď. Je to první klidný pohled na to, co ve vztahu funguje a co už si říká o větší pozornost."
+                ? "Není to soud ani definitivní odpověď. Spíš první klidný pohled na to, co ve vztahu funguje a co už potřebuje víc pozornosti."
                 : "This is not a judgment or a final answer. It is a calm first look at what is working in the relationship and what may need more attention."}
             </p>
           </div>

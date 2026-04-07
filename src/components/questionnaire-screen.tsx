@@ -25,7 +25,7 @@ const questionnaireCopy = {
         eyebrow: "Otázky",
         title: "Otázky k tvému vztahu",
         description:
-            "Ukazují se jen oblasti, které se vztahu opravdu týkají. Odpovídej na škále 1 až 5. Vyšší číslo znamená spíš zdravější stav.",
+            "Ukazují se jen oblasti, které se vašeho vztahu opravdu týkají. Odpovídej na škále 1 až 5, kde vyšší číslo znamená spíš zdravější stav.",
         gateTitle: "Nejdřív krátký úvod",
         gateText:
             "Aby otázky dávaly smysl, potřebujeme nejdřív pár základních informací o vztahu.",
@@ -38,18 +38,19 @@ const questionnaireCopy = {
         modeLabel: "Verze",
         shorterMode: "kratší",
         detailedMode: "podrobnější",
-        notesTitle: "Co se ti teď ukazuje",
-        hiddenChildren: "Protože do vztahu teď nezahrnuješ děti, rodinná část se neukáže.",
-        hiddenHousehold: "Protože spolu nebydlíte, část o domácnosti zůstává pryč.",
+        notesTitle: "Proč se ukazují právě tyhle otázky",
+        hiddenChildren: "Protože děti teď do vztahu nezahrnuješ, rodinná část se vynechá.",
+        hiddenHousehold: "Protože spolu nebydlíte, otázky k domácnosti se vynechají.",
         limitedFinances: "Protože nesdílíte peníze, zůstávají jen obecnější otázky k financím.",
-        shortDuration: "Protože jste spolu krátce, víc se tu díváme na tempo, první důvěru a očekávání.",
-        establishedDuration: "Protože spolu už nějakou dobu jste, víc se tu ukazují opakující se vzorce a dlouhodobější věci.",
-        longDuration: "U delšího vztahu se víc ukáže únava, nosnost a to, co se vrací pořád dokola.",
-        familyOurs: "U společných dětí se víc díváme na to, jak držíte společnou rodičovskou linku.",
+        shortDuration: "Protože jste spolu krátce, víc se tu díváme na tempo vztahu, první důvěru a očekávání.",
+        establishedDuration: "Protože spolu už nějakou dobu jste, víc se tu ukazují opakující se vzorce a dlouhodobější témata.",
+        longDuration: "U delšího vztahu se víc ukáže únava a to, co se mezi vámi vrací pořád dokola.",
+        familyOurs: "U společných dětí se víc díváme na to, jak spolu fungujete jako rodiče.",
         familyStep: "Když jsou ve vztahu tvoje nebo partnerovy děti, víc se ptáme na role a očekávání.",
-        familyBlended: "V patchwork rodině se víc ukážou otázky na přechody mezi domácnostmi a spolupráci.",
+        familyBlended: "Ve smíšené rodině se víc ukážou otázky na přechody mezi domácnostmi a spolupráci.",
         intimacyIncluded: "Do otázek je zahrnutá i oblast intimity a sexuální blízkosti.",
         notApplicableNote: "U některých otázek můžeš zvolit i To se mě netýká.",
+        notApplicableHint: "Tahle otázka se vás netýká.",
     },
     en: {
         eyebrow: "Questions",
@@ -80,6 +81,7 @@ const questionnaireCopy = {
         familyBlended: "In a blended family, more questions show up around transitions between households and staying coordinated.",
         intimacyIncluded: "This questionnaire also includes intimacy and sexual connection.",
         notApplicableNote: "For some questions, you can also choose This does not apply to me.",
+        notApplicableHint: "This question does not apply to you.",
     },
 } as const;
 
@@ -140,6 +142,14 @@ export default function QuestionnaireScreen() {
 
     useEffect(() => {
         setCurrentQuestionId(resolvedQuestionId);
+    }, [resolvedQuestionId]);
+
+    useEffect(() => {
+        if (!resolvedQuestionId) {
+            return;
+        }
+
+        window.scrollTo({ top: 0, behavior: "auto" });
     }, [resolvedQuestionId]);
 
     if (onboarding.hasChildren === false) {
@@ -241,115 +251,78 @@ export default function QuestionnaireScreen() {
             eyebrow={copy.eyebrow}
             title={copy.title}
             description={copy.description}
-            aside={
-                <div className="space-y-6">
-                    <div className="rounded-[24px] border border-[var(--stroke)] bg-[var(--panel)] p-5">
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
-                            {copy.progress}
-                        </p>
-                        <p className="mt-3 font-serif text-4xl text-[var(--foreground)]">
-                            {answeredCount}/{visibleQuestions.length}
-                        </p>
-                        <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-                            {copy.modeLabel}: <span className="font-semibold text-[var(--foreground)]">{modeLabel}</span>
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
-                            {copy.notesTitle}
-                        </p>
-                        <div className="mt-4 space-y-3">
-                            {notes.map((item) => (
-                                <div
-                                    key={item}
-                                    className="rounded-[20px] border border-[var(--stroke)] bg-[var(--panel)] px-4 py-3 text-sm leading-6 text-[var(--muted-foreground)]"
-                                >
-                                    {item}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            }
+            layoutMode="step"
         >
-            <div className="space-y-6">
-                <div className="rounded-[28px] border border-[var(--stroke)] bg-[var(--panel-soft)] p-5 sm:p-6">
-                    <div className={`grid gap-3 ${hasNotApplicableQuestions ? "sm:grid-cols-6" : "sm:grid-cols-5"}`}>
-                        {scaleLabels[language].map((item) => (
-                            <div
-                                key={item.value}
-                                className="rounded-[20px] border border-white/70 bg-white/75 px-4 py-3 text-center"
-                            >
-                                <p className="text-xl font-semibold text-[var(--foreground)]">{item.value}</p>
-                                <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
-                                    {item.label}
-                                </p>
+            {currentQuestion ? (
+                <QuestionStepCard
+                    stepKey="questionnaire-step"
+                    progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
+                    progressCurrent={progress.currentNumber}
+                    progressTotal={progress.totalQuestions}
+                    questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
+                    questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
+                    clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
+                    sectionLabel={currentArea ? (language === "cz" ? currentArea.titleCZ : currentArea.titleEN) : undefined}
+                    sectionDescription={
+                        currentArea
+                            ? language === "cz"
+                                ? currentArea.descriptionCZ
+                                : currentArea.descriptionEN
+                            : undefined
+                    }
+                    options={[
+                        ...scaleLabels[language].map((item) => ({
+                            key: `${currentQuestion.id}-${item.value}`,
+                            label: `${item.value}`,
+                            hint: item.label,
+                            selected: answers[currentQuestion.id] === item.value,
+                            onSelect: () => handleSelect(item.value),
+                        })),
+                        ...(currentQuestion.allowsNotApplicable
+                            ? [
+                                {
+                                    key: `${currentQuestion.id}-${NOT_APPLICABLE}`,
+                                    label: notApplicableLabels[language],
+                                    hint: copy.notApplicableHint,
+                                    selected: answers[currentQuestion.id] === NOT_APPLICABLE,
+                                    onSelect: () => handleSelect(NOT_APPLICABLE),
+                                },
+                            ]
+                            : []),
+                    ]}
+                    optionsClassName={`grid gap-3 sm:auto-rows-fr ${currentQuestion.allowsNotApplicable ? "sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-3 xl:grid-cols-5"}`}
+                    backLabel={copy.back}
+                    nextLabel={nextQuestionId ? copy.next : copy.results}
+                    onBack={handleBack}
+                    onNext={handleNext}
+                    canGoBack={Boolean(previousQuestionId)}
+                    canGoNext={answers[currentQuestion.id] !== undefined}
+                    footer={
+                        <div className="space-y-3">
+                            <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                                <span className="font-semibold text-[var(--foreground)]">
+                                    {copy.progress} {answeredCount}/{visibleQuestions.length}
+                                </span>
+                                {" · "}
+                                {copy.modeLabel}: <span className="font-semibold text-[var(--foreground)]">{modeLabel}</span>
+                                {hasNotApplicableQuestions ? ` · ${copy.notApplicableNote}` : ""}
                             </div>
-                        ))}
-                        {hasNotApplicableQuestions ? (
-                            <div className="rounded-[20px] border border-dashed border-[var(--stroke)] bg-white/65 px-4 py-3 text-center">
-                                <p className="text-sm font-semibold text-[var(--foreground)]">
-                                    {notApplicableLabels[language]}
-                                </p>
-                                <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
-                                    {copy.notApplicableNote}
-                                </p>
-                            </div>
-                        ) : null}
-                    </div>
-                </div>
-
-                {currentQuestion ? (
-                    <QuestionStepCard
-                        progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
-                        progressCurrent={progress.currentNumber}
-                        progressTotal={progress.totalQuestions}
-                        questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
-                        questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
-                        clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
-                        sectionLabel={currentArea ? (language === "cz" ? currentArea.titleCZ : currentArea.titleEN) : undefined}
-                        sectionDescription={
-                            currentArea
-                                ? language === "cz"
-                                    ? currentArea.descriptionCZ
-                                    : currentArea.descriptionEN
-                                : undefined
-                        }
-                        options={[
-                            ...scaleLabels[language].map((item) => ({
-                                key: `${currentQuestion.id}-${item.value}`,
-                                label: `${item.value}`,
-                                hint: item.label,
-                                selected: answers[currentQuestion.id] === item.value,
-                                onSelect: () => handleSelect(item.value),
-                            })),
-                            ...(currentQuestion.allowsNotApplicable
-                                ? [
-                                    {
-                                        key: `${currentQuestion.id}-${NOT_APPLICABLE}`,
-                                        label: notApplicableLabels[language],
-                                        hint: copy.notApplicableNote,
-                                        selected: answers[currentQuestion.id] === NOT_APPLICABLE,
-                                        onSelect: () => handleSelect(NOT_APPLICABLE),
-                                    },
-                                ]
-                                : []),
-                        ]}
-                        optionsClassName={`grid gap-3 ${currentQuestion.allowsNotApplicable ? "sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-3 xl:grid-cols-5"}`}
-                        backLabel={copy.back}
-                        nextLabel={nextQuestionId ? copy.next : copy.results}
-                        onBack={handleBack}
-                        onNext={handleNext}
-                        canGoBack={Boolean(previousQuestionId)}
-                        canGoNext={answers[currentQuestion.id] !== undefined}
-                        footer={
-                            <p className="text-sm leading-6 text-[var(--muted-foreground)]">
-                                {copy.progress} {answeredCount}/{visibleQuestions.length}
-                            </p>
-                        }
-                    />
-                ) : null}
-            </div>
+                            {notes.length > 0 ? (
+                                <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+                                        {copy.notesTitle}
+                                    </p>
+                                    <div className="mt-2 space-y-2">
+                                        {notes.slice(0, 3).map((item) => (
+                                            <p key={item}>{item}</p>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : null}
+                        </div>
+                    }
+                />
+            ) : null}
         </AppShell>
     );
 }

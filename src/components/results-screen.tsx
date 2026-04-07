@@ -10,9 +10,9 @@ import { buildResultNarrative } from "@/lib/result-narratives";
 const resultsCopy = {
     cz: {
         eyebrow: "Shrnutí",
-        title: "Jak to ve vztahu teď působí",
+        title: "Jak na tom vztah teď je",
         description:
-            "Tohle není verdikt. Je to klidný souhrn toho, co vztah drží, kde je citlivější a co si teď zaslouží pozornost.",
+            "Není to verdikt. Je to klidný souhrn toho, co vztah drží, kde je citlivější a co si teď zaslouží víc péče.",
         gateTitle: "Nejdřív projdi otázky",
         gateText: "Shrnutí se ukáže až po zodpovězení všech otázek, které se vztahu týkají.",
         gateAction: "Přejít k otázkám",
@@ -22,8 +22,8 @@ const resultsCopy = {
         outcome: "Celkový dojem",
         restart: "Začít znovu",
         revise: "Upravit odpovědi",
-        holdsTitle: "Na čem vztah pořád stojí",
-        weakensTitle: "Kde se vztah zbytečně vyčerpává",
+        holdsTitle: "Co vztah pořád drží",
+        weakensTitle: "Kde se vztah vyčerpává",
         warningTitle: "Čeho si všimnout včas",
         nextTitle: "Co má smysl udělat teď",
     },

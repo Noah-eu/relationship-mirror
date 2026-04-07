@@ -11,6 +11,7 @@ type StepOption = {
 };
 
 type QuestionStepCardProps = {
+    stepKey?: string;
     progressLabel: string;
     progressCurrent: number;
     progressTotal: number;
@@ -31,6 +32,7 @@ type QuestionStepCardProps = {
 };
 
 export default function QuestionStepCard({
+    stepKey,
     progressLabel,
     progressCurrent,
     progressTotal,
@@ -53,8 +55,8 @@ export default function QuestionStepCard({
         progressTotal > 0 ? Math.max((progressCurrent / progressTotal) * 100, 4) : 0;
 
     return (
-        <section className="rounded-[30px] border border-[var(--stroke)] bg-[linear-gradient(135deg,rgba(245,243,238,0.96),rgba(255,255,255,0.94))] p-6 sm:p-8">
-            <div className="space-y-6">
+        <section id={stepKey} className="rounded-[30px] border border-[var(--stroke)] bg-[linear-gradient(135deg,rgba(245,243,238,0.96),rgba(255,255,255,0.94))] p-6 shadow-[0_26px_70px_rgba(72,64,49,0.12)] sm:min-h-[580px] sm:p-8">
+            <div className="flex min-h-full flex-col justify-between space-y-6">
                 <div className="space-y-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
@@ -102,7 +104,7 @@ export default function QuestionStepCard({
                             key={option.key}
                             type="button"
                             onClick={option.onSelect}
-                            className={`rounded-[24px] border px-4 py-4 text-left transition ${
+                            className={`flex h-full min-h-[120px] flex-col justify-between rounded-[24px] border px-4 py-4 text-left transition ${
                                 option.selected
                                     ? "border-[var(--accent-strong)] bg-white shadow-[0_18px_40px_rgba(76,96,88,0.12)]"
                                     : "border-[var(--stroke)] bg-white/70 hover:bg-white"

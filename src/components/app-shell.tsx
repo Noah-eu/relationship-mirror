@@ -10,14 +10,15 @@ type AppShellProps = {
   title: string;
   description: string;
   children: ReactNode;
-  aside: ReactNode;
+  aside?: ReactNode;
+  layoutMode?: "default" | "step";
 };
 
 const stepCopy = {
   cz: {
     brand: "Vztah pod lupou",
-    strapline: "Klidný prostor, kde si můžeš srovnat, jak na tom vztah teď je.",
-    steps: ["Začátek", "Na úvod", "Otázky", "Shrnutí"],
+    strapline: "Klidný prostor, kde si můžeš ujasnit, jak na tom vztah právě je.",
+    steps: ["Začátek", "Úvod", "Otázky", "Shrnutí"],
     language: "Jazyk",
   },
   en: {
@@ -34,6 +35,7 @@ export default function AppShell({
   description,
   children,
   aside,
+  layoutMode = "default",
 }: AppShellProps) {
   const pathname = usePathname();
   const { language, onboardingComplete, questionnaireComplete, setLanguage } =
@@ -45,11 +47,12 @@ export default function AppShell({
     { href: "/questionnaire", label: copy.steps[2], enabled: onboardingComplete },
     { href: "/results", label: copy.steps[3], enabled: questionnaireComplete },
   ];
+  const isStepLayout = layoutMode === "step";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(96,141,124,0.2),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(191,146,111,0.16),_transparent_28%),linear-gradient(180deg,_#f3efe7_0%,_#ede6db_100%)]">
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.34)_0%,transparent_24%,transparent_76%,rgba(255,255,255,0.32)_100%)] opacity-50" />
-      <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+      <div className={`relative mx-auto flex min-h-screen w-full flex-col px-4 py-6 sm:px-6 lg:px-8 ${isStepLayout ? "max-w-5xl" : "max-w-7xl"}`}>
         <header className="rounded-[32px] border border-white/70 bg-white/80 px-5 py-5 shadow-[0_30px_80px_rgba(72,64,49,0.12)] backdrop-blur md:px-7 md:py-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-2">
@@ -133,25 +136,46 @@ export default function AppShell({
           </div>
         </header>
 
-        <main className="mt-6 grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <section className="rounded-[32px] border border-white/70 bg-[var(--panel)] px-5 py-6 shadow-[0_34px_90px_rgba(72,64,49,0.14)] sm:px-8 sm:py-8">
-            <div className="mb-8 max-w-3xl space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-strong)]">
-                {eyebrow}
-              </p>
-              <h1 className="font-serif text-4xl leading-tight text-[var(--foreground)] sm:text-5xl">
-                {title}
-              </h1>
-              <p className="max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg">
-                {description}
-              </p>
-            </div>
-            {children}
-          </section>
+        <main className={`mt-6 flex-1 ${isStepLayout ? "flex items-start justify-center lg:items-center" : "grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"}`}>
+          {isStepLayout ? (
+            <section className="flex w-full max-w-4xl flex-col justify-center py-2 sm:py-4">
+              <div className="mb-6 space-y-3 px-1 text-center sm:mb-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-strong)]">
+                  {eyebrow}
+                </p>
+                <h1 className="font-serif text-3xl leading-tight text-[var(--foreground)] sm:text-4xl">
+                  {title}
+                </h1>
+                <p className="mx-auto max-w-2xl text-base leading-7 text-[var(--muted-foreground)]">
+                  {description}
+                </p>
+              </div>
+              {children}
+            </section>
+          ) : (
+            <>
+              <section className="rounded-[32px] border border-white/70 bg-[var(--panel)] px-5 py-6 shadow-[0_34px_90px_rgba(72,64,49,0.14)] sm:px-8 sm:py-8">
+                <div className="mb-8 max-w-3xl space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-strong)]">
+                    {eyebrow}
+                  </p>
+                  <h1 className="font-serif text-4xl leading-tight text-[var(--foreground)] sm:text-5xl">
+                    {title}
+                  </h1>
+                  <p className="max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg">
+                    {description}
+                  </p>
+                </div>
+                {children}
+              </section>
 
-          <aside className="rounded-[32px] border border-white/70 bg-white/72 px-5 py-6 shadow-[0_30px_80px_rgba(72,64,49,0.12)] backdrop-blur sm:px-6">
-            {aside}
-          </aside>
+              {aside ? (
+                <aside className="rounded-[32px] border border-white/70 bg-white/72 px-5 py-6 shadow-[0_30px_80px_rgba(72,64,49,0.12)] backdrop-blur sm:px-6">
+                  {aside}
+                </aside>
+              ) : null}
+            </>
+          )}
         </main>
       </div>
     </div>

@@ -41,57 +41,57 @@ const narrativeCopy: Record<
     }
 > = {
     cz: {
-        strongestLead: "Nejpevněji se teď vztah opírá o",
-        relativeWeakLead: "Relativně jemnější místa jsou",
+        strongestLead: "Nejvíc vás teď drží",
+        relativeWeakLead: "Citlivější místa jsou teď hlavně",
         actualWeakLead: "Víc pozornosti si teď zaslouží",
-        warningLead: "Skutečné varování se teď ukazuje v",
-        weakestPanelSoft: "Oblasti pro průběžnou péči",
-        weakestPanelHard: "Oblasti, které potřebují víc pozornosti",
+        warningLead: "Pozor je teď hlavně potřeba v",
+        weakestPanelSoft: "Místa pro průběžnou péči",
+        weakestPanelHard: "Místa, která potřebují víc péče",
         buckets: {
             "relationship stands on strong foundations": {
-                label: "Vztah stojí na pevných pilířích",
+                label: "Vztah stojí na pevných základech",
                 holds:
-                    "Tenhle výsledek ukazuje vztah, který stojí na pevných pilířích. Je v něm dost opory, důvěry a funkčních vzorců, na kterých se dá dál klidně stavět.",
+                    "Tenhle výsledek ukazuje vztah, ve kterém je pořád dost opory, důvěry a fungujících návyků. Je na čem stavět dál.",
                 weakensSoft:
-                    "I v dobrém vztahu bývají oblasti, které jsou jen o něco citlivější než zbytek. Tady jde právě o taková běžná místa pro průběžnou péči.",
+                    "I v dobrém vztahu bývají místa, která jsou jen o něco citlivější než zbytek. Tady to zatím působí spíš jako běžná oblast, o kterou je dobré průběžně pečovat.",
                 weakensReal:
-                    "Jedna nebo dvě oblasti si zaslouží víc pozornosti než zbytek, ale celkový obraz zůstává zdravý a důvěryhodný. Vyplatí se jim dát včasnou péči, aby si vztah udržel současnou pevnost.",
+                    "Jedna nebo dvě oblasti teď potřebují víc pozornosti než zbytek, ale celkový obraz zůstává zdravý a důvěryhodný. Když je nenecháte být, pomůže to udržet to, co už funguje.",
                 warningSoft:
                     "Teď se tu neukazuje nic, co by samo o sobě působilo jako výrazné varování.",
                 warningReal:
-                    "Výsledek zůstává celkově dobrý, ale tyto oblasti už stojí za vědomější hlídání, aby se v nich nezačalo usazovat napětí.",
+                    "Celkově to pořád vychází dobře, ale tady už stojí za to být pozornější, aby se nezačalo usazovat napětí.",
                 next:
-                    "Dává smysl o tenhle vztah dál pečovat průběžně: držet to, co funguje, a drobnější tření řešit včas, než ztěžkne.",
+                    "Dává smysl dál pečovat o to, co funguje, a menší tření řešit včas, dokud je ještě lehké.",
             },
             "limited test of change needed": {
-                label: "Je potřeba omezený, ale skutečný test změny",
+                label: "Vztah potřebuje menší, ale skutečnou změnu",
                 holds:
-                    "Ve vztahu je pořád něco, o co se dá opřít, ale samo to už nestačí nést celý obraz bez další změny.",
+                    "Ve vztahu je pořád něco, o co se dá opřít, ale samo to už nestačí, pokud se nic neposune.",
                 weakensSoft:
-                    "Některá místa jsou citlivější než ostatní a je vidět, že se přes ně do vztahu dostává únava.",
+                    "Některá místa jsou citlivější než ostatní a je vidět, že přes ně do vztahu proniká únava.",
                 weakensReal:
                     "Slabší oblasti už zasahují do běžného fungování a nejde je brát jen jako drobný výkyv nebo špatné období.",
                 warningSoft:
-                    "Největší riziko je, že se o změně bude mluvit, ale v běžném provozu se nic podstatného neposune.",
+                    "Největší riziko je, že se o změně bude mluvit, ale v běžném fungování se nic důležitého neposune.",
                 warningReal:
-                    "Varovné je hlavně to, že bez konkrétní změny se současný tlak může dál vracet a postupně ubírat vztahu nosnost.",
+                    "Bez konkrétní změny se současný tlak může dál vracet a vztah dál oslabovat.",
                 next:
-                    "Teď dává smysl krátký a konkrétní test změny: vyjasnit si co se má změnit, dokdy a podle čeho poznáš, že se to opravdu děje.",
+                    "Teď dává smysl krátký a konkrétní test změny: ujasnit si, co se má změnit, dokdy a podle čeho poznáte, že se to opravdu děje.",
             },
             "likely long-term unsustainable without major change": {
-                label: "Bez větší změny je tenhle vztah nejspíš dlouhodobě neudržitelný",
+                label: "Bez větší změny bude tenhle vztah nejspíš těžké dlouhodobě udržet",
                 holds:
                     "Něco dobrého tu může pořád být, ale samo to teď zřejmě nestačí na pocit bezpečí a dlouhodobé opory.",
                 weakensSoft:
-                    "I tam, kde ještě něco funguje, už je vztah pod tlakem, který snižuje jeho nosnost.",
+                    "I tam, kde ještě něco funguje, je vztah pod tlakem, který mu bere lehkost a stabilitu.",
                 weakensReal:
-                    "Slabá místa už nejsou jen okrajová. Zasahují do základů vztahu a berou mu sílu v běžném fungování.",
+                    "Slabá místa už nejsou jen na okraji. Sahají do samotného základu vztahu a berou sílu běžnému fungování.",
                 warningSoft:
-                    "Tady už nejde jen o jemnější péči, ale o potřebu dívat se velmi poctivě na realitu.",
+                    "Tady už nejde jen o jemné dolaďování, ale o velmi poctivý pohled na to, jak věci opravdu jsou.",
                 warningReal:
-                    "Varovné je hlavně to, že bez větší a viditelné změny se stejný tlak bude nejspíš vracet a dál vyčerpávat oba.",
+                    "Bez větší a viditelné změny se stejný tlak nejspíš bude vracet a dál vyčerpávat oba.",
                 next:
-                    "Teď je důležité dívat se víc na realitu než na naději, že se to časem samo zlomí. Pokud má vztah ještě dostat šanci, bude potřebovat větší a viditelnou změnu.",
+                    "Teď je důležité dívat se víc na realitu než na naději, že se to samo zlomí. Pokud má vztah ještě dostat šanci, bude potřebovat větší a viditelnou změnu.",
             },
         },
     },

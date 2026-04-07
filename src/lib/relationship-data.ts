@@ -211,7 +211,7 @@ export const questionnaireAreas: QuestionnaireArea[] = [
         id: "sexualConnection",
         titleCZ: "Intimita a sexuální blízkost",
         titleEN: "Intimacy and sexual connection",
-        descriptionCZ: "Jestli je v téhle oblasti mezi vámi bezpečí, respekt a dost prostoru pro vzájemnost.",
+        descriptionCZ: "Jestli je v téhle oblasti mezi vámi bezpečí, respekt a prostor pro oba.",
         descriptionEN: "Whether this part of the relationship feels safe, respectful, and mutual.",
     },
     {
@@ -280,7 +280,7 @@ export const onboardingQuestions: OnboardingQuestion[] = [
             option("mine", "Moje děti", "My children"),
             option("theirs", "Partnerovy děti", "Their children"),
             option("ours", "Naše společné děti", "Our shared children"),
-            option("blended", "Patchwork rodina", "Blended family"),
+            option("blended", "Smíšená rodina", "Blended family"),
         ],
     },
     {
@@ -299,7 +299,7 @@ export const onboardingQuestions: OnboardingQuestion[] = [
         id: "includeIntimacy",
         textCZ: "Chceš do dotazníku zahrnout i oblast intimity a sexuální blízkosti?",
         textEN: "Do you want the questionnaire to include intimacy and sexual connection?",
-        clarifierCZ: "Když zvolíš ne, tahle část se v otázkách vůbec neukáže.",
+        clarifierCZ: "Když zvolíš ne, tuhle část dotazníku přeskočíme.",
         clarifierEN: "If you choose no, this area will stay out of the questionnaire.",
         showIf: [],
         options: [
@@ -311,12 +311,12 @@ export const onboardingQuestions: OnboardingQuestion[] = [
         id: "mode",
         textCZ: "Chceš kratší, nebo podrobnější verzi?",
         textEN: "Do you want the shorter or more detailed version?",
-        clarifierCZ: "Kratší verze je svižnější. Podrobnější jde víc do jemností.",
+        clarifierCZ: "Kratší verze je rychlejší. Podrobnější zachytí víc detailů.",
         clarifierEN: "The shorter version is quicker. The more detailed version goes into more nuance.",
         showIf: [],
         options: [
             option("quick", "Kratší verze", "Shorter version", "Méně otázek", "Fewer questions"),
-            option("deep", "Podrobnější verze", "More detailed version", "Víc otázek a jemnější obraz", "More questions and a fuller picture"),
+            option("deep", "Podrobnější verze", "More detailed version", "Víc otázek a přesnější obrázek", "More questions and a fuller picture"),
         ],
     },
 ];
@@ -581,7 +581,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question(
         "trust-2",
         "trustStability",
-        "Náš vztah působí spíš stabilně než chaoticky.",
+        "Náš vztah je spíš stabilní než chaotický.",
         "Our relationship feels more stable than chaotic.",
         "Jde o celkový rytmus a předvídatelnost vztahu.",
         "This is about the overall rhythm and predictability of the relationship.",
@@ -631,7 +631,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
         "trustStability",
         "Na začátku vztahu to, co vidím, odpovídá i tomu, co zažívám.",
         "At this stage, what I see matches what I actually experience.",
-        "Jde o to, zda vztah nepůsobí jinak navenek než ve skutečnosti.",
+        "Jde o to, jestli to, co ve vztahu vidím, odpovídá tomu, co opravdu zažívám.",
         "This is about whether the relationship feels real rather than misleading.",
         2,
         [{ field: "duration", operator: "equals", value: "lt1" }],
@@ -726,9 +726,9 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question(
         "household-4",
         "household",
-        "Společné bydlení je pro nás spíš opora než zdroj stálé zloby.",
+        "Společné bydlení je pro nás spíš opora než zdroj stálého napětí.",
         "Living together feels more like support than a constant source of resentment.",
-        "Jde o to, jak působí běžný provoz domova.",
+        "Jde o to, jak se nám spolu žije v běžném chodu domácnosti.",
         "This is about the feel of ordinary life at home.",
         2,
         [{ field: "livingTogether", operator: "equals", value: true }],
@@ -775,7 +775,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question(
         "finances-3",
         "finances",
-        "Když něco platíme spolu, působí to fér.",
+        "Když něco platíme spolu, připadá mi to fér.",
         "When we pay for things together, it feels fair.",
         "Nemusí jít o stejnou částku, ale o pocit spravedlnosti.",
         "It does not have to be the exact same amount. It is about whether it feels fair.",
@@ -825,7 +825,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question(
         "intimacy-2",
         "partnershipIntimacy",
-        "Blízkost mezi námi působí přirozeně.",
+        "Blízkost mezi námi je přirozená.",
         "Closeness between us feels natural.",
         "Může jít o dotek, sex, něhu nebo obyčejnou fyzickou blízkost.",
         "This can include touch, sex, affection, or simple physical closeness.",
@@ -920,7 +920,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question(
         "sexual-5",
         "sexualConnection",
-        "V téhle oblasti mezi námi zůstává pocit vzájemnosti, ne povinnosti.",
+        "V téhle oblasti mezi námi převažuje vzájemnost, ne pocit povinnosti.",
         "In this area, what stays between us feels mutual rather than dutiful.",
         "Mysli na celkovou atmosféru, ne na jednu konkrétní situaci.",
         "Think about the overall atmosphere, not one specific moment.",
@@ -1018,7 +1018,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question(
         "children-6",
         "childrenFamily",
-        "V složitější rodinné situaci umíme držet společnou linku.",
+        "I ve složitější rodinné situaci umíme držet společný směr.",
         "In a more complex family situation, we can still hold a shared line.",
         "Například když do vztahu vstupují děti z předchozích vztahů nebo širší rodina.",
         "For example when children from previous relationships or extended family are involved.",
@@ -1060,7 +1060,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question(
         "children-9",
         "childrenFamily",
-        "V patchwork rodině zvládáme přechody mezi domácnostmi bez velkého rozpadu spolupráce.",
+        "Ve smíšené rodině zvládáme přechody mezi domácnostmi, aniž by se rozpadla spolupráce.",
         "In a blended family, we can handle transitions between households without losing cooperation.",
         "Například střídání, plánování a navazování mezi více domácnostmi.",
         "For example handovers, planning, and staying connected across more than one home.",
@@ -1074,7 +1074,7 @@ export const questionnaireQuestions: QuestionnaireQuestion[] = [
     question(
         "decision-1",
         "decisionTruth",
-        "Když si představím, že zůstanu, působí to pro mě vnitřně pravdivě.",
+        "Když si představím, že zůstanu, dává mi to vnitřně smysl.",
         "When I imagine staying, it feels inwardly true to me.",
         "Jde o klidný pocit ano, ne o tlak nebo paniku.",
         "This is about a quiet inner yes, not pressure or panic.",

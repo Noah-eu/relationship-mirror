@@ -19,24 +19,16 @@ import { getVisibleOnboardingQuestions } from "@/lib/relationship-engine";
 const onboardingCopy = {
     cz: {
         eyebrow: "Na úvod",
-        title: "Nejdřív vyber, co se tvého vztahu opravdu týká",
+        title: "Nejdřív vyber, co do vašeho vztahu opravdu patří",
         description:
             "Stačí pár krátkých odpovědí a ukážou se jen ty otázky, které pro tebe dávají smysl.",
         questionLabel: "Otázka",
         back: "Zpět",
         next: "Další",
         continue: "Pokračovat k otázkám",
-        incomplete: "Nejdřív projdi všechny viditelné otázky nahoře.",
-        progress: "Hotovo",
-        summaryTitle: "Co se podle toho ukáže",
-        summary: [
-            "Když do vztahu teď nezahrnuješ děti, část o rodině se neukáže.",
-            "Když spolu nebydlíte, otázky k domácnosti zůstanou pryč.",
-            "Když nesdílíte peníze, ukážou se jen obecnější otázky k financím.",
-            "Délka vztahu jemně upraví, na co se budeme ptát.",
-            "Rodinná situace pomůže vybrat jen ty otázky, které dávají smysl právě vám.",
-            "Pokud budeš chtít, přidá se i část o intimitě a sexuální blízkosti.",
-        ],
+        answerPrompt: "Abys mohl nebo mohla pokračovat, vyber jednu odpověď.",
+        footerDefault: "Podle těchto odpovědí pak vybereme jen otázky, které pro vás dávají smysl.",
+        footerFinish: "Po poslední odpovědi se rovnou otevře hlavní část dotazníku.",
     },
     en: {
         eyebrow: "Basics",
@@ -47,17 +39,9 @@ const onboardingCopy = {
         back: "Back",
         next: "Next",
         continue: "Continue to questions",
-        incomplete: "First go through all visible questions above.",
-        progress: "Done",
-        summaryTitle: "What this changes",
-        summary: [
-            "If children are not part of the relationship, the family section stays out.",
-            "If you do not live together, household questions stay hidden.",
-            "If you do not share money, only the more general finance questions stay in.",
-            "Relationship length gently changes some of the questions.",
-            "Family setup helps pick only the questions that fit your situation.",
-            "If you want, you can also include a section on intimacy and sexual connection.",
-        ],
+        answerPrompt: "Choose one answer to continue.",
+        footerDefault: "These answers help us show only the questions that fit your situation.",
+        footerFinish: "After the last answer, the main questionnaire opens right away.",
     },
 } as const;
 
@@ -66,7 +50,6 @@ export default function OnboardingScreen() {
     const {
         language,
         onboarding,
-        onboardingProgress,
         setOnboardingAnswer,
         visibleOnboardingQuestions,
     } = useRelationship();
@@ -106,6 +89,14 @@ export default function OnboardingScreen() {
 
     useEffect(() => {
         setCurrentQuestionId(resolvedQuestionId);
+    }, [resolvedQuestionId]);
+
+    useEffect(() => {
+        if (!resolvedQuestionId) {
+            return;
+        }
+
+        window.scrollTo({ top: 0, behavior: "auto" });
     }, [resolvedQuestionId]);
 
     function getNextOnboardingState(questionId: string, value: string | boolean) {
@@ -171,36 +162,11 @@ export default function OnboardingScreen() {
             eyebrow={copy.eyebrow}
             title={copy.title}
             description={copy.description}
-            aside={
-                <div className="space-y-6">
-                    <div className="rounded-[24px] border border-[var(--stroke)] bg-[var(--panel)] p-5">
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
-                            {copy.progress}
-                        </p>
-                        <p className="mt-3 font-serif text-4xl text-[var(--foreground)]">
-                            {onboardingProgress.answeredCount}/{onboardingProgress.totalCount}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-strong)]">
-                            {copy.summaryTitle}
-                        </p>
-                        <div className="mt-4 space-y-3">
-                            {copy.summary.map((item) => (
-                                <div
-                                    key={item}
-                                    className="rounded-[20px] border border-[var(--stroke)] bg-[var(--panel)] px-4 py-3 text-sm leading-6 text-[var(--muted-foreground)]"
-                                >
-                                    {item}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            }
+            layoutMode="step"
         >
             {currentQuestion ? (
                 <QuestionStepCard
+                    stepKey="onboarding-step"
                     progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
                     progressCurrent={progress.currentNumber}
                     progressTotal={progress.totalQuestions}
@@ -214,7 +180,7 @@ export default function OnboardingScreen() {
                         selected: onboarding[currentQuestion.id] === option.value,
                         onSelect: () => handleSelect(option.value),
                     }))}
-                    optionsClassName="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+                    optionsClassName="grid gap-3 sm:auto-rows-fr sm:grid-cols-2 xl:grid-cols-4"
                     backLabel={copy.back}
                     nextLabel={nextQuestionId ? copy.next : copy.continue}
                     onBack={handleBack}
@@ -222,9 +188,13 @@ export default function OnboardingScreen() {
                     canGoBack={Boolean(previousQuestionId)}
                     canGoNext={onboarding[currentQuestion.id] !== null}
                     footer={
-                        <p className="text-sm leading-6 text-[var(--muted-foreground)]">
-                            {copy.incomplete}
-                        </p>
+                        <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                            {onboarding[currentQuestion.id] === null
+                                ? copy.answerPrompt
+                                : nextQuestionId
+                                    ? copy.footerDefault
+                                    : copy.footerFinish}
+                        </div>
                     }
                 />
             ) : null}
