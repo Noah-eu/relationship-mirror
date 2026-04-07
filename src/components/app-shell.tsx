@@ -139,17 +139,6 @@ export default function AppShell({
         <main className={`mt-6 flex-1 ${isStepLayout ? "flex items-start justify-center lg:items-center" : "grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"}`}>
           {isStepLayout ? (
             <section className="flex w-full max-w-4xl flex-col justify-center py-2 sm:py-4">
-              <div className="mb-6 space-y-3 px-1 text-center sm:mb-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent-strong)]">
-                  {eyebrow}
-                </p>
-                <h1 className="font-serif text-3xl leading-tight text-[var(--foreground)] sm:text-4xl">
-                  {title}
-                </h1>
-                <p className="mx-auto max-w-2xl text-base leading-7 text-[var(--muted-foreground)]">
-                  {description}
-                </p>
-              </div>
               {children}
             </section>
           ) : (

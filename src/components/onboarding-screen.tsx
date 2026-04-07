@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/app-shell";
 import QuestionStepCard from "@/components/question-step-card";
@@ -29,6 +29,8 @@ const onboardingCopy = {
         answerPrompt: "Abys mohl nebo mohla pokračovat, vyber jednu odpověď.",
         footerDefault: "Podle těchto odpovědí pak vybereme jen otázky, které pro vás dávají smysl.",
         footerFinish: "Po poslední odpovědi se rovnou otevře hlavní část dotazníku.",
+        helperToggle: "Jak to funguje",
+        helperBody: "Tyhle úvodní odpovědi jen vyberou otázky, které se vás opravdu týkají.",
     },
     en: {
         eyebrow: "Basics",
@@ -42,6 +44,8 @@ const onboardingCopy = {
         answerPrompt: "Choose one answer to continue.",
         footerDefault: "These answers help us show only the questions that fit your situation.",
         footerFinish: "After the last answer, the main questionnaire opens right away.",
+        helperToggle: "How this works",
+        helperBody: "These basic answers only decide which questions are relevant for your situation.",
     },
 } as const;
 
@@ -55,6 +59,7 @@ export default function OnboardingScreen() {
     } = useRelationship();
     const copy = onboardingCopy[language];
     const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
+    const questionCardRef = useRef<HTMLDivElement | null>(null);
     const questionIds = useMemo(
         () => visibleOnboardingQuestions.map((question) => question.id),
         [visibleOnboardingQuestions],
@@ -96,7 +101,11 @@ export default function OnboardingScreen() {
             return;
         }
 
-        window.scrollTo({ top: 0, behavior: "auto" });
+        const frameId = window.requestAnimationFrame(() => {
+            questionCardRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
+        });
+
+        return () => window.cancelAnimationFrame(frameId);
     }, [resolvedQuestionId]);
 
     function getNextOnboardingState(questionId: string, value: string | boolean) {
@@ -165,38 +174,48 @@ export default function OnboardingScreen() {
             layoutMode="step"
         >
             {currentQuestion ? (
-                <QuestionStepCard
-                    stepKey="onboarding-step"
-                    progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
-                    progressCurrent={progress.currentNumber}
-                    progressTotal={progress.totalQuestions}
-                    questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
-                    questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
-                    clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
-                    options={currentQuestion.options.map((option) => ({
-                        key: `${currentQuestion.id}-${String(option.value)}`,
-                        label: language === "cz" ? option.labelCZ : option.labelEN,
-                        hint: language === "cz" ? option.hintCZ : option.hintEN,
-                        selected: onboarding[currentQuestion.id] === option.value,
-                        onSelect: () => handleSelect(option.value),
-                    }))}
-                    optionsClassName="grid gap-3 sm:auto-rows-fr sm:grid-cols-2 xl:grid-cols-4"
-                    backLabel={copy.back}
-                    nextLabel={nextQuestionId ? copy.next : copy.continue}
-                    onBack={handleBack}
-                    onNext={handleNext}
-                    canGoBack={Boolean(previousQuestionId)}
-                    canGoNext={onboarding[currentQuestion.id] !== null}
-                    footer={
-                        <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
-                            {onboarding[currentQuestion.id] === null
-                                ? copy.answerPrompt
-                                : nextQuestionId
-                                    ? copy.footerDefault
-                                    : copy.footerFinish}
-                        </div>
-                    }
-                />
+                <div ref={questionCardRef}>
+                    <QuestionStepCard
+                        stepKey="onboarding-step"
+                        progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
+                        progressCurrent={progress.currentNumber}
+                        progressTotal={progress.totalQuestions}
+                        questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
+                        questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
+                        clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
+                        options={currentQuestion.options.map((option) => ({
+                            key: `${currentQuestion.id}-${String(option.value)}`,
+                            label: language === "cz" ? option.labelCZ : option.labelEN,
+                            hint: language === "cz" ? option.hintCZ : option.hintEN,
+                            selected: onboarding[currentQuestion.id] === option.value,
+                            onSelect: () => handleSelect(option.value),
+                        }))}
+                        optionsClassName="grid gap-3 sm:auto-rows-fr sm:grid-cols-2 xl:grid-cols-4"
+                        backLabel={copy.back}
+                        nextLabel={nextQuestionId ? copy.next : copy.continue}
+                        onBack={handleBack}
+                        onNext={handleNext}
+                        canGoBack={Boolean(previousQuestionId)}
+                        canGoNext={onboarding[currentQuestion.id] !== null}
+                        footer={
+                            <div className="space-y-3">
+                                <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                                    {onboarding[currentQuestion.id] === null
+                                        ? copy.answerPrompt
+                                        : nextQuestionId
+                                            ? copy.footerDefault
+                                            : copy.footerFinish}
+                                </div>
+                                <details className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                                    <summary className="cursor-pointer list-none font-semibold text-[var(--foreground)]">
+                                        {copy.helperToggle}
+                                    </summary>
+                                    <p className="mt-3">{copy.helperBody}</p>
+                                </details>
+                            </div>
+                        }
+                    />
+                </div>
             ) : null}
         </AppShell>
     );

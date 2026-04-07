@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/app-shell";
@@ -51,6 +51,8 @@ const questionnaireCopy = {
         intimacyIncluded: "Do otázek je zahrnutá i oblast intimity a sexuální blízkosti.",
         notApplicableNote: "U některých otázek můžeš zvolit i To se mě netýká.",
         notApplicableHint: "Tahle otázka se vás netýká.",
+        scaleToggle: "Jak funguje škála a proč tyhle otázky",
+        scaleHelp: "Škála jde od 1 do 5. Vyšší číslo znamená spíš zdravější nebo stabilnější stav.",
     },
     en: {
         eyebrow: "Questions",
@@ -82,6 +84,8 @@ const questionnaireCopy = {
         intimacyIncluded: "This questionnaire also includes intimacy and sexual connection.",
         notApplicableNote: "For some questions, you can also choose This does not apply to me.",
         notApplicableHint: "This question does not apply to you.",
+        scaleToggle: "How the scale works and why these questions show up",
+        scaleHelp: "The scale runs from 1 to 5. Higher numbers point to a healthier or steadier situation.",
     },
 } as const;
 
@@ -99,6 +103,7 @@ export default function QuestionnaireScreen() {
     const copy = questionnaireCopy[language];
     const hasNotApplicableQuestions = visibleQuestions.some((question) => question.allowsNotApplicable);
     const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
+    const questionCardRef = useRef<HTMLDivElement | null>(null);
     const questionIds = useMemo(
         () => visibleQuestions.map((question) => question.id),
         [visibleQuestions],
@@ -149,7 +154,11 @@ export default function QuestionnaireScreen() {
             return;
         }
 
-        window.scrollTo({ top: 0, behavior: "auto" });
+        const frameId = window.requestAnimationFrame(() => {
+            questionCardRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
+        });
+
+        return () => window.cancelAnimationFrame(frameId);
     }, [resolvedQuestionId]);
 
     if (onboarding.hasChildren === false) {
@@ -254,74 +263,82 @@ export default function QuestionnaireScreen() {
             layoutMode="step"
         >
             {currentQuestion ? (
-                <QuestionStepCard
-                    stepKey="questionnaire-step"
-                    progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
-                    progressCurrent={progress.currentNumber}
-                    progressTotal={progress.totalQuestions}
-                    questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
-                    questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
-                    clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
-                    sectionLabel={currentArea ? (language === "cz" ? currentArea.titleCZ : currentArea.titleEN) : undefined}
-                    sectionDescription={
-                        currentArea
-                            ? language === "cz"
-                                ? currentArea.descriptionCZ
-                                : currentArea.descriptionEN
-                            : undefined
-                    }
-                    options={[
-                        ...scaleLabels[language].map((item) => ({
-                            key: `${currentQuestion.id}-${item.value}`,
-                            label: `${item.value}`,
-                            hint: item.label,
-                            selected: answers[currentQuestion.id] === item.value,
-                            onSelect: () => handleSelect(item.value),
-                        })),
-                        ...(currentQuestion.allowsNotApplicable
-                            ? [
-                                {
-                                    key: `${currentQuestion.id}-${NOT_APPLICABLE}`,
-                                    label: notApplicableLabels[language],
-                                    hint: copy.notApplicableHint,
-                                    selected: answers[currentQuestion.id] === NOT_APPLICABLE,
-                                    onSelect: () => handleSelect(NOT_APPLICABLE),
-                                },
-                            ]
-                            : []),
-                    ]}
-                    optionsClassName={`grid gap-3 sm:auto-rows-fr ${currentQuestion.allowsNotApplicable ? "sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-3 xl:grid-cols-5"}`}
-                    backLabel={copy.back}
-                    nextLabel={nextQuestionId ? copy.next : copy.results}
-                    onBack={handleBack}
-                    onNext={handleNext}
-                    canGoBack={Boolean(previousQuestionId)}
-                    canGoNext={answers[currentQuestion.id] !== undefined}
-                    footer={
-                        <div className="space-y-3">
-                            <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
-                                <span className="font-semibold text-[var(--foreground)]">
-                                    {copy.progress} {answeredCount}/{visibleQuestions.length}
-                                </span>
-                                {" · "}
-                                {copy.modeLabel}: <span className="font-semibold text-[var(--foreground)]">{modeLabel}</span>
-                                {hasNotApplicableQuestions ? ` · ${copy.notApplicableNote}` : ""}
-                            </div>
-                            {notes.length > 0 ? (
+                <div ref={questionCardRef}>
+                    <QuestionStepCard
+                        stepKey="questionnaire-step"
+                        progressLabel={`${copy.questionLabel} ${progress.currentNumber} ${language === "cz" ? "z" : "of"} ${progress.totalQuestions}`}
+                        progressCurrent={progress.currentNumber}
+                        progressTotal={progress.totalQuestions}
+                        questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
+                        questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
+                        clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
+                        sectionLabel={currentArea ? (language === "cz" ? currentArea.titleCZ : currentArea.titleEN) : undefined}
+                        sectionDescription={
+                            currentArea
+                                ? language === "cz"
+                                    ? currentArea.descriptionCZ
+                                    : currentArea.descriptionEN
+                                : undefined
+                        }
+                        options={[
+                            ...scaleLabels[language].map((item) => ({
+                                key: `${currentQuestion.id}-${item.value}`,
+                                label: `${item.value}`,
+                                hint: item.label,
+                                selected: answers[currentQuestion.id] === item.value,
+                                onSelect: () => handleSelect(item.value),
+                            })),
+                            ...(currentQuestion.allowsNotApplicable
+                                ? [
+                                    {
+                                        key: `${currentQuestion.id}-${NOT_APPLICABLE}`,
+                                        label: notApplicableLabels[language],
+                                        hint: copy.notApplicableHint,
+                                        selected: answers[currentQuestion.id] === NOT_APPLICABLE,
+                                        onSelect: () => handleSelect(NOT_APPLICABLE),
+                                    },
+                                ]
+                                : []),
+                        ]}
+                        optionsClassName={`grid gap-3 sm:auto-rows-fr ${currentQuestion.allowsNotApplicable ? "sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-3 xl:grid-cols-5"}`}
+                        backLabel={copy.back}
+                        nextLabel={nextQuestionId ? copy.next : copy.results}
+                        onBack={handleBack}
+                        onNext={handleNext}
+                        canGoBack={Boolean(previousQuestionId)}
+                        canGoNext={answers[currentQuestion.id] !== undefined}
+                        footer={
+                            <div className="space-y-3">
                                 <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
-                                        {copy.notesTitle}
-                                    </p>
-                                    <div className="mt-2 space-y-2">
-                                        {notes.slice(0, 3).map((item) => (
-                                            <p key={item}>{item}</p>
-                                        ))}
-                                    </div>
+                                    <span className="font-semibold text-[var(--foreground)]">
+                                        {copy.progress} {answeredCount}/{visibleQuestions.length}
+                                    </span>
+                                    {" · "}
+                                    {copy.modeLabel}: <span className="font-semibold text-[var(--foreground)]">{modeLabel}</span>
                                 </div>
-                            ) : null}
-                        </div>
-                    }
-                />
+                                <details className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                                    <summary className="cursor-pointer list-none font-semibold text-[var(--foreground)]">
+                                        {copy.scaleToggle}
+                                    </summary>
+                                    <div className="mt-3 space-y-2">
+                                        <p>{copy.scaleHelp}</p>
+                                        {hasNotApplicableQuestions ? <p>{copy.notApplicableNote}</p> : null}
+                                        {notes.length > 0 ? (
+                                            <div className="space-y-2">
+                                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+                                                    {copy.notesTitle}
+                                                </p>
+                                                {notes.slice(0, 3).map((item) => (
+                                                    <p key={item}>{item}</p>
+                                                ))}
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </details>
+                            </div>
+                        }
+                    />
+                </div>
             ) : null}
         </AppShell>
     );
