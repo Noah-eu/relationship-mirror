@@ -308,23 +308,23 @@ export default function QuestionnaireScreen() {
                         canGoBack={Boolean(previousQuestionId)}
                         canGoNext={answers[currentQuestion.id] !== undefined}
                         footer={
-                            <div className="space-y-3">
-                                <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                            <div className="space-y-2.5">
+                                <div className="rounded-[18px] border border-[var(--stroke)] bg-white/72 px-3 py-3 text-xs leading-5 text-[var(--muted-foreground)] sm:text-sm sm:leading-5">
                                     <span className="font-semibold text-[var(--foreground)]">
                                         {copy.progress} {answeredCount}/{visibleQuestions.length}
                                     </span>
                                     {" · "}
                                     {copy.modeLabel}: <span className="font-semibold text-[var(--foreground)]">{modeLabel}</span>
                                 </div>
-                                <details className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                                <details className="rounded-[18px] border border-[var(--stroke)] bg-white/72 px-3 py-3 text-xs leading-5 text-[var(--muted-foreground)] sm:text-sm sm:leading-5">
                                     <summary className="cursor-pointer list-none font-semibold text-[var(--foreground)]">
                                         {copy.scaleToggle}
                                     </summary>
-                                    <div className="mt-3 space-y-2">
+                                    <div className="mt-2 space-y-1.5">
                                         <p>{copy.scaleHelp}</p>
                                         {hasNotApplicableQuestions ? <p>{copy.notApplicableNote}</p> : null}
                                         {notes.length > 0 ? (
-                                            <div className="space-y-2">
+                                            <div className="space-y-1.5">
                                                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
                                                     {copy.notesTitle}
                                                 </p>

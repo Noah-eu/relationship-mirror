@@ -198,19 +198,19 @@ export default function OnboardingScreen() {
                         canGoBack={Boolean(previousQuestionId)}
                         canGoNext={onboarding[currentQuestion.id] !== null}
                         footer={
-                            <div className="space-y-3">
-                                <div className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                            <div className="space-y-2.5">
+                                <div className="rounded-[18px] border border-[var(--stroke)] bg-white/72 px-3 py-3 text-xs leading-5 text-[var(--muted-foreground)] sm:text-sm sm:leading-5">
                                     {onboarding[currentQuestion.id] === null
                                         ? copy.answerPrompt
                                         : nextQuestionId
                                             ? copy.footerDefault
                                             : copy.footerFinish}
                                 </div>
-                                <details className="rounded-[22px] border border-[var(--stroke)] bg-white/72 px-4 py-4 text-sm leading-6 text-[var(--muted-foreground)]">
+                                <details className="rounded-[18px] border border-[var(--stroke)] bg-white/72 px-3 py-3 text-xs leading-5 text-[var(--muted-foreground)] sm:text-sm sm:leading-5">
                                     <summary className="cursor-pointer list-none font-semibold text-[var(--foreground)]">
                                         {copy.helperToggle}
                                     </summary>
-                                    <p className="mt-3">{copy.helperBody}</p>
+                                    <p className="mt-2">{copy.helperBody}</p>
                                 </details>
                             </div>
                         }
