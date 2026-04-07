@@ -52,6 +52,7 @@ const questionnaireCopy = {
         notApplicableNote: "U některých otázek můžeš zvolit i To se mě netýká.",
         notApplicableHint: "Tahle otázka se vás netýká.",
         scaleToggle: "Jak funguje škála a proč tyhle otázky",
+        scaleCompactToggle: "Upřesnění",
         scaleHelp: "Škála jde od 1 do 5. Vyšší číslo znamená spíš zdravější nebo stabilnější stav.",
     },
     en: {
@@ -85,6 +86,7 @@ const questionnaireCopy = {
         notApplicableNote: "For some questions, you can also choose This does not apply to me.",
         notApplicableHint: "This question does not apply to you.",
         scaleToggle: "How the scale works and why these questions show up",
+        scaleCompactToggle: "Details",
         scaleHelp: "The scale runs from 1 to 5. Higher numbers point to a healthier or steadier situation.",
     },
 } as const;
@@ -273,6 +275,7 @@ export default function QuestionnaireScreen() {
                         questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
                         clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
                         sectionLabel={currentArea ? (language === "cz" ? currentArea.titleCZ : currentArea.titleEN) : undefined}
+                        compactDetailsLabel={copy.scaleCompactToggle}
                         sectionDescription={
                             currentArea
                                 ? language === "cz"
@@ -300,31 +303,41 @@ export default function QuestionnaireScreen() {
                                 ]
                                 : []),
                         ]}
-                        optionsClassName={`grid gap-3 sm:auto-rows-fr ${currentQuestion.allowsNotApplicable ? "sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-3 xl:grid-cols-5"}`}
+                        optionsClassName={`grid gap-2.5 ${currentQuestion.allowsNotApplicable ? "sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-3 xl:grid-cols-5"}`}
+                        compactOptionsClassName={`grid gap-2 ${currentQuestion.allowsNotApplicable ? "sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-3 xl:grid-cols-5"}`}
                         backLabel={copy.back}
                         nextLabel={nextQuestionId ? copy.next : copy.results}
                         onBack={handleBack}
                         onNext={handleNext}
                         canGoBack={Boolean(previousQuestionId)}
                         canGoNext={answers[currentQuestion.id] !== undefined}
-                        footer={
-                            <div className="space-y-2.5">
-                                <div className="rounded-[18px] border border-[var(--stroke)] bg-white/72 px-3 py-3 text-xs leading-5 text-[var(--muted-foreground)] sm:text-sm sm:leading-5">
+                        autoAdvance
+                        footer={({ isCompact }) => (
+                            <div className={isCompact ? "space-y-2" : "space-y-2.5"}>
+                                <div className={`rounded-[18px] border border-[var(--stroke)] bg-white/72 text-[var(--muted-foreground)] ${
+                                    isCompact
+                                        ? "px-2.5 py-2 text-[11px] leading-4 sm:text-xs sm:leading-4"
+                                        : "px-3 py-3 text-xs leading-5 sm:text-sm sm:leading-5"
+                                }`}>
                                     <span className="font-semibold text-[var(--foreground)]">
                                         {copy.progress} {answeredCount}/{visibleQuestions.length}
                                     </span>
                                     {" · "}
                                     {copy.modeLabel}: <span className="font-semibold text-[var(--foreground)]">{modeLabel}</span>
                                 </div>
-                                <details className="rounded-[18px] border border-[var(--stroke)] bg-white/72 px-3 py-3 text-xs leading-5 text-[var(--muted-foreground)] sm:text-sm sm:leading-5">
+                                <details className={`rounded-[18px] border border-[var(--stroke)] bg-white/72 text-[var(--muted-foreground)] ${
+                                    isCompact
+                                        ? "px-2.5 py-2 text-[11px] leading-4 sm:text-xs sm:leading-4"
+                                        : "px-3 py-3 text-xs leading-5 sm:text-sm sm:leading-5"
+                                }`}>
                                     <summary className="cursor-pointer list-none font-semibold text-[var(--foreground)]">
-                                        {copy.scaleToggle}
+                                        {isCompact ? copy.scaleCompactToggle : copy.scaleToggle}
                                     </summary>
-                                    <div className="mt-2 space-y-1.5">
+                                    <div className={isCompact ? "mt-1.5 space-y-1" : "mt-2 space-y-1.5"}>
                                         <p>{copy.scaleHelp}</p>
                                         {hasNotApplicableQuestions ? <p>{copy.notApplicableNote}</p> : null}
                                         {notes.length > 0 ? (
-                                            <div className="space-y-1.5">
+                                            <div className={isCompact ? "space-y-1" : "space-y-1.5"}>
                                                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
                                                     {copy.notesTitle}
                                                 </p>
@@ -336,7 +349,7 @@ export default function QuestionnaireScreen() {
                                     </div>
                                 </details>
                             </div>
-                        }
+                        )}
                     />
                 </div>
             ) : null}

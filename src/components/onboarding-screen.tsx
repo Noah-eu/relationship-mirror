@@ -30,6 +30,7 @@ const onboardingCopy = {
         footerDefault: "Podle těchto odpovědí pak vybereme jen otázky, které pro vás dávají smysl.",
         footerFinish: "Po poslední odpovědi se rovnou otevře hlavní část dotazníku.",
         helperToggle: "Jak to funguje",
+        helperCompactToggle: "Upřesnění",
         helperBody: "Tyhle úvodní odpovědi jen vyberou otázky, které se vás opravdu týkají.",
     },
     en: {
@@ -45,6 +46,7 @@ const onboardingCopy = {
         footerDefault: "These answers help us show only the questions that fit your situation.",
         footerFinish: "After the last answer, the main questionnaire opens right away.",
         helperToggle: "How this works",
+        helperCompactToggle: "Details",
         helperBody: "These basic answers only decide which questions are relevant for your situation.",
     },
 } as const;
@@ -183,6 +185,7 @@ export default function OnboardingScreen() {
                         questionLabel={`${copy.questionLabel} ${progress.currentNumber}`}
                         questionText={language === "cz" ? currentQuestion.textCZ : currentQuestion.textEN}
                         clarifier={language === "cz" ? currentQuestion.clarifierCZ : currentQuestion.clarifierEN}
+                        compactDetailsLabel={copy.helperCompactToggle}
                         options={currentQuestion.options.map((option) => ({
                             key: `${currentQuestion.id}-${String(option.value)}`,
                             label: language === "cz" ? option.labelCZ : option.labelEN,
@@ -190,30 +193,40 @@ export default function OnboardingScreen() {
                             selected: onboarding[currentQuestion.id] === option.value,
                             onSelect: () => handleSelect(option.value),
                         }))}
-                        optionsClassName="grid gap-3 sm:auto-rows-fr sm:grid-cols-2 xl:grid-cols-4"
+                        optionsClassName="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4"
+                        compactOptionsClassName="grid gap-2 sm:grid-cols-2 xl:grid-cols-4"
                         backLabel={copy.back}
                         nextLabel={nextQuestionId ? copy.next : copy.continue}
                         onBack={handleBack}
                         onNext={handleNext}
                         canGoBack={Boolean(previousQuestionId)}
                         canGoNext={onboarding[currentQuestion.id] !== null}
-                        footer={
-                            <div className="space-y-2.5">
-                                <div className="rounded-[18px] border border-[var(--stroke)] bg-white/72 px-3 py-3 text-xs leading-5 text-[var(--muted-foreground)] sm:text-sm sm:leading-5">
+                        autoAdvance
+                        footer={({ isCompact }) => (
+                            <div className={isCompact ? "space-y-2" : "space-y-2.5"}>
+                                <div className={`rounded-[18px] border border-[var(--stroke)] bg-white/72 text-[var(--muted-foreground)] ${
+                                    isCompact
+                                        ? "px-2.5 py-2 text-[11px] leading-4 sm:text-xs sm:leading-4"
+                                        : "px-3 py-3 text-xs leading-5 sm:text-sm sm:leading-5"
+                                }`}>
                                     {onboarding[currentQuestion.id] === null
                                         ? copy.answerPrompt
                                         : nextQuestionId
                                             ? copy.footerDefault
                                             : copy.footerFinish}
                                 </div>
-                                <details className="rounded-[18px] border border-[var(--stroke)] bg-white/72 px-3 py-3 text-xs leading-5 text-[var(--muted-foreground)] sm:text-sm sm:leading-5">
+                                <details className={`rounded-[18px] border border-[var(--stroke)] bg-white/72 text-[var(--muted-foreground)] ${
+                                    isCompact
+                                        ? "px-2.5 py-2 text-[11px] leading-4 sm:text-xs sm:leading-4"
+                                        : "px-3 py-3 text-xs leading-5 sm:text-sm sm:leading-5"
+                                }`}>
                                     <summary className="cursor-pointer list-none font-semibold text-[var(--foreground)]">
-                                        {copy.helperToggle}
+                                        {isCompact ? copy.helperCompactToggle : copy.helperToggle}
                                     </summary>
-                                    <p className="mt-2">{copy.helperBody}</p>
+                                    <p className={isCompact ? "mt-1.5" : "mt-2"}>{copy.helperBody}</p>
                                 </details>
                             </div>
-                        }
+                        )}
                     />
                 </div>
             ) : null}
